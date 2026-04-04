@@ -16,6 +16,7 @@ import ReportGenerator from '@/components/report/ReportGenerator';
 import PerformanceCost from '@/components/xray/PerformanceCost';
 import BenchmarkScores from '@/components/xray/BenchmarkScores';
 import PDFExportButton from '@/components/report/PDFExport';
+import InferenceFlow from '@/components/xray/InferenceFlow';
 import Badge from '@/components/shared/Badge';
 
 // --- API ---
@@ -658,6 +659,23 @@ function EvaluatePageInner() {
                 />
               )}
             </div>
+
+            {/* Row 3a: Inference Flow Animation */}
+            {results.architecture && (
+              <InferenceFlow
+                modelName={modelId ?? 'Unknown'}
+                numLayers={results.architecture.numLayers}
+                numHeads={results.architecture.numAttentionHeads}
+                numKVHeads={results.architecture.numKVHeads}
+                hiddenSize={results.architecture.hiddenSize}
+                isMoE={results.architecture.isMoE}
+                numExperts={results.architecture.numExperts}
+                numExpertsPerTok={results.architecture.numExpertsPerTok}
+                contextWindow={results.architecture.contextWindow}
+                estimatedTps={estimateTpsFromParams(results.architecture.parameterCount)}
+                vocabSize={results.architecture.vocabSize}
+              />
+            )}
 
             {/* Row 3b: Performance & Cost Estimates (full width) */}
             {results.architecture && (
