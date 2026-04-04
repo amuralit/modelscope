@@ -63,11 +63,24 @@ export async function runArchitectureScan(
   const oParams = numAttentionHeads * headDim * hiddenSize;
   const attnParamsPerLayer = qParams + kParams + vParams + oParams;
 
-  let mlpParamsPerLayer = hiddenSize * intermediateSize * 3;
+  // For MoE models, each expert has its own smaller FFN (moe_intermediate_size).
+  // The dense intermediate_size may be for shared/non-expert layers.
+  const moeIntermediateSize = config.moe_intermediate_size;
+  let mlpParamsPerLayer: number;
 
-  if (isMoE) {
+  if (isMoE && moeIntermediateSize && moeIntermediateSize > 0) {
+    // Expert MLP: each expert uses moe_intermediate_size
+    const expertMlpParams = hiddenSize * moeIntermediateSize * 3;
     const routerParams = hiddenSize * numExperts;
-    mlpParamsPerLayer = mlpParamsPerLayer * numExperts + routerParams;
+    // Some architectures also have a shared dense MLP — check if intermediate_size differs
+    const sharedMlpParams = intermediateSize !== moeIntermediateSize ? hiddenSize * intermediateSize * 3 : 0;
+    mlpParamsPerLayer = expertMlpParams * numExperts + routerParams + sharedMlpParams;
+  } else if (isMoE) {
+    // No moe_intermediate_size — fall back to intermediate_size for all experts
+    const routerParams = hiddenSize * numExperts;
+    mlpParamsPerLayer = hiddenSize * intermediateSize * 3 * numExperts + routerParams;
+  } else {
+    mlpParamsPerLayer = hiddenSize * intermediateSize * 3;
   }
 
   const totalParams =
@@ -75,9 +88,11 @@ export async function runArchitectureScan(
 
   let activeParams = totalParams;
   if (isMoE && numExperts > 0 && numExpertsPerTok > 0) {
+    const activeExpertSize = moeIntermediateSize && moeIntermediateSize > 0 ? moeIntermediateSize : intermediateSize;
     const activeMlpPerLayer =
-      hiddenSize * intermediateSize * 3 * numExpertsPerTok +
-      hiddenSize * numExperts;
+      hiddenSize * activeExpertSize * 3 * numExpertsPerTok +
+      hiddenSize * numExperts + // router always active
+      (moeIntermediateSize && intermediateSize !== moeIntermediateSize ? hiddenSize * intermediateSize * 3 : 0); // shared dense MLP
     activeParams =
       embeddingParams + numLayers * (attnParamsPerLayer + activeMlpPerLayer);
   }

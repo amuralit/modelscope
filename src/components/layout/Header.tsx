@@ -44,7 +44,7 @@ export default function Header() {
           <line x1="2" y1="16" x2="8" y2="16" stroke="currentColor" strokeWidth="1.5" />
           <line x1="24" y1="16" x2="30" y2="16" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-        <span className="text-base font-bold text-[#0F172A]">ModelScope</span>
+        <span className="text-base font-bold text-[#0F172A]">CerebrasLens</span>
       </div>
     </header>
   );

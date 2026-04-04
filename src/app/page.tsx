@@ -166,7 +166,7 @@ export default function HomePage() {
       {/* ================================================================= */}
       <section className={`relative px-4 pb-16 sm:px-8 transition-all duration-700 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-6 text-center text-lg font-bold text-[#0F172A]">What ModelScope Analyzes</h2>
+          <h2 className="mb-6 text-center text-lg font-bold text-[#0F172A]">What CerebrasLens Analyzes</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CAPABILITIES.map((cap, i) => (
               <div

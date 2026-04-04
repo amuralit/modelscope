@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ModelScope — X-ray any model for Cerebras",
+  title: "CerebrasLens — X-ray any model for Cerebras",
   description: "Evaluate whether an open-weight AI model is a good fit for Cerebras Inference.",
 };
 

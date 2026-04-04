@@ -52,7 +52,7 @@ function normalizeConfig(raw: Record<string, any>): Record<string, any> {
   if (nested && typeof nested === "object") {
     const fields = [
       "num_hidden_layers", "num_attention_heads", "num_key_value_heads",
-      "hidden_size", "intermediate_size", "vocab_size", "max_position_embeddings",
+      "hidden_size", "intermediate_size", "moe_intermediate_size", "vocab_size", "max_position_embeddings",
       "num_local_experts", "num_experts_per_tok", "num_experts", "num_experts_per_tok",
       "head_dim", "rope_theta", "sliding_window",
     ];
