@@ -632,17 +632,9 @@ function EvaluatePageInner() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               {results.architecture && (
                 <ArchitectureDiagram
-                  archResult={{
-                    num_layers: results.architecture.numLayers,
-                    num_attention_heads: results.architecture.numAttentionHeads,
-                    num_kv_heads: results.architecture.numKVHeads,
-                    hidden_size: results.architecture.hiddenSize,
-                    intermediate_size: results.architecture.intermediateSize,
-                    is_moe: results.architecture.isMoE,
-                    num_experts: results.architecture.numExperts,
-                    attention_type: results.architecture.attentionVariant,
-                    head_dim: results.architecture.headDim,
-                  }}
+                  arch={results.architecture}
+                  wseFit={results.wseFit}
+                  estimatedTps={estimateTpsFromParams(results.architecture.parameterCount)}
                 />
               )}
               {results.wseFit && (
@@ -741,11 +733,11 @@ export default function EvaluatePage() {
 // ---------------------------------------------------------------------------
 
 function estimateTpsFromParams(params: number): number {
-  if (params < 10e9) return 2000 + Math.round(Math.random() * 1000);
-  if (params < 30e9) return 1500 + Math.round(Math.random() * 1000);
-  if (params < 70e9) return 800 + Math.round(Math.random() * 700);
-  if (params < 200e9) return 400 + Math.round(Math.random() * 600);
-  return 200 + Math.round(Math.random() * 400);
+  if (params < 10e9) return 2500;
+  if (params < 30e9) return 2000;
+  if (params < 70e9) return 1100;
+  if (params < 200e9) return 700;
+  return 400;
 }
 
 function gpuBaselineTps(params: number): number {
