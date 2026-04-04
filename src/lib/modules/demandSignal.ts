@@ -180,7 +180,7 @@ export async function runDemandSignal(
   modelInfo: ModelInfo,
 ): Promise<DemandSignalResult> {
   const downloadsTotal = modelInfo.downloads ?? 0;
-  const downloads30d = modelInfo.downloadsLastMonth ?? 0;
+  const downloads30d = modelInfo.downloadsLastMonth ?? modelInfo.downloads ?? 0;
   const likes = modelInfo.likes ?? 0;
 
   const labName = modelInfo.author ?? "unknown";
