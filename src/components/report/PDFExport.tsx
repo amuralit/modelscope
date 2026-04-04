@@ -226,6 +226,57 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
       }
 
       // ================================================================
+      // PERFORMANCE & COMPETITIVE DATA
+      // ================================================================
+      if (analysisData) {
+        const speed = analysisData.speedSensitivity as Record<string, any> | undefined;
+        const gap = analysisData.competitiveGap as Record<string, any> | undefined;
+        const wseFitData = analysisData.wseFit as Record<string, any> | undefined;
+
+        if (speed || gap || wseFitData) {
+          pdf.setDrawColor(226, 232, 240);
+          pdf.line(m, y, pw - m, y);
+          y += 15;
+
+          sectionTitle('Performance & Deployment', indigo);
+
+          const perfSpecs: [string, string][] = [];
+          if (speed?.estimatedTokensPerSecond) perfSpecs.push(['Decode Speed', `${speed.estimatedTokensPerSecond.toLocaleString()} tok/s (Cerebras)`]);
+          if (speed?.speedupOverGPU) perfSpecs.push(['GPU Speedup', `${speed.speedupOverGPU.toFixed(1)}x faster than GPU baseline`]);
+          if (speed?.primaryUseCases?.[0]) perfSpecs.push(['Primary Use Case', speed.primaryUseCases[0]]);
+          if (wseFitData?.fitsInSRAM !== undefined) perfSpecs.push(['WSE-3 Fit', wseFitData.fitsInSRAM ? 'Fits on single wafer (44GB SRAM)' : 'Requires multi-wafer deployment']);
+          if (wseFitData?.sramUtilization) perfSpecs.push(['SRAM Utilization', `${(wseFitData.sramUtilization * 100).toFixed(0)}%`]);
+
+          for (const [label, value] of perfSpecs) {
+            checkPage(18);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(8);
+            pdf.setTextColor(...mid);
+            pdf.text(label + ':', m + 10, y);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(value, m + 120, y);
+            y += 15;
+          }
+          y += 5;
+
+          if (gap) {
+            sectionTitle('Competitive Landscape', amber);
+            const competitors = gap.competitorsOffering as string[] | undefined;
+            if (competitors && competitors.length > 0) {
+              addParagraph(`Served by ${competitors.length} provider(s): ${competitors.join(', ')}. Market gap: ${gap.marketGapSize ?? 'unknown'}. Risk of not offering: ${gap.riskOfNotOffering ?? 'unknown'}.`);
+            } else {
+              addParagraph('No competitors currently serve this model — first-mover opportunity for Cerebras.');
+            }
+            if (gap.differentiators) {
+              for (const d of gap.differentiators as string[]) {
+                addBullet(d);
+              }
+            }
+          }
+        }
+      }
+
+      // ================================================================
       // AI SUMMARY SECTIONS
       // ================================================================
       if (aiSummary) {
