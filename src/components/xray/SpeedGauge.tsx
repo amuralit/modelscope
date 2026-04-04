@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
 interface SpeedResult {
   use_case: string;
   elasticity_score: number;
@@ -16,20 +14,8 @@ interface SpeedGaugeProps {
   speedResult: SpeedResult;
 }
 
-function scoreToColor(score: number): string {
-  if (score < 30) return '#EF4444';
-  if (score < 60) return '#F59E0B';
-  return '#10B981';
-}
-
-function scoreToGradientId(score: number): string {
-  if (score < 30) return 'gauge-red';
-  if (score < 60) return 'gauge-amber';
-  return 'gauge-green';
-}
-
 function formatTime(seconds: number): string {
-  if (seconds < 0.001) return `${(seconds * 1_000_000).toFixed(0)}us`;
+  if (seconds < 0.001) return `${(seconds * 1_000_000).toFixed(0)}µs`;
   if (seconds < 1) return `${(seconds * 1000).toFixed(0)}ms`;
   if (seconds < 60) return `${seconds.toFixed(1)}s`;
   return `${(seconds / 60).toFixed(1)}m`;
@@ -45,147 +31,151 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
     score,
   } = speedResult;
 
-  const gaugeMetrics = useMemo(() => {
-    const cx = 150;
-    const cy = 140;
-    const r = 110;
-    const startAngle = Math.PI; // 180 degrees (left)
-    const endAngle = 0; // 0 degrees (right)
-    const scoreAngle = startAngle - (score / 100) * Math.PI;
+  // Gauge parameters
+  const size = 280;
+  const cx = size / 2;
+  const cy = 150;
+  const r = 100;
+  const strokeW = 16;
 
-    // Arc path for background
-    const bgPath = describeArc(cx, cy, r, startAngle, endAngle);
+  // Semicircle from 180° to 0° (left to right, over the top)
+  // In SVG, angles go clockwise from the positive X axis
+  // We want: left end at 180°, right end at 0°
+  const totalArc = Math.PI; // semicircle
+  const clampedScore = Math.max(0, Math.min(100, score));
+  const scoreRatio = clampedScore / 100;
 
-    // Arc path for score fill
-    const fillPath = describeArc(cx, cy, r, startAngle, scoreAngle);
+  // Arc endpoints using standard polar coords (SVG Y is inverted)
+  const startX = cx + r * Math.cos(Math.PI); // left
+  const startY = cy - r * Math.sin(Math.PI); // baseline
+  const endX = cx + r * Math.cos(0); // right
+  const endY = cy - r * Math.sin(0); // baseline
 
-    // Needle endpoint
-    const needleX = cx + (r - 15) * Math.cos(scoreAngle);
-    const needleY = cy - (r - 15) * Math.sin(scoreAngle);
+  // Score arc endpoint: interpolate angle from PI to 0
+  const scoreAngle = Math.PI * (1 - scoreRatio);
+  const scoreX = cx + r * Math.cos(scoreAngle);
+  const scoreY = cy - r * Math.sin(scoreAngle);
 
-    return { cx, cy, r, bgPath, fillPath, needleX, needleY };
-  }, [score]);
+  // Background arc path (full semicircle)
+  // From left to right going over the top = sweep clockwise in SVG
+  const bgArc = `M ${startX} ${startY} A ${r} ${r} 0 0 1 ${endX} ${endY}`;
 
-  const color = scoreToColor(score);
-  const gradientId = scoreToGradientId(score);
+  // Score fill arc (partial, from left toward score position)
+  const fillLargeArc = scoreRatio > 0.5 ? 1 : 0;
+  const fillArc =
+    scoreRatio > 0.01
+      ? `M ${startX} ${startY} A ${r} ${r} 0 ${fillLargeArc} 1 ${scoreX} ${scoreY}`
+      : '';
 
-  const gpuBarW = 100;
-  const cerebrasBarW = Math.max(
-    4,
-    (cerebras_time_seconds / gpu_time_seconds) * gpuBarW
+  // Needle endpoint (slightly shorter than radius)
+  const needleR = r - 20;
+  const needleX = cx + needleR * Math.cos(scoreAngle);
+  const needleY = cy - needleR * Math.sin(scoreAngle);
+
+  // Score color
+  const scoreColor = score >= 60 ? '#059669' : score >= 30 ? '#D97706' : '#DC2626';
+
+  // Bar widths for comparison
+  const gpuBarPct = 90;
+  const cerebrasBarPct = Math.max(
+    3,
+    (cerebras_time_seconds / Math.max(gpu_time_seconds, 0.001)) * gpuBarPct,
   );
 
   return (
-    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
+      <h3 className="mb-2 text-sm font-semibold text-[#0F172A]">
         Speed Sensitivity
       </h3>
 
       {/* Gauge */}
       <div className="flex justify-center">
-        <svg width={300} height={170} viewBox="0 0 300 170">
+        <svg
+          width={size}
+          height={170}
+          viewBox={`0 0 ${size} 170`}
+          className="overflow-visible"
+        >
           <defs>
-            <linearGradient id="gauge-green" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#EF4444" />
-              <stop offset="50%" stopColor="#F59E0B" />
-              <stop offset="100%" stopColor="#10B981" />
-            </linearGradient>
-            <linearGradient id="gauge-amber" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#EF4444" />
-              <stop offset="50%" stopColor="#F59E0B" />
-              <stop offset="100%" stopColor="#10B981" />
-            </linearGradient>
-            <linearGradient id="gauge-red" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#EF4444" />
-              <stop offset="50%" stopColor="#F59E0B" />
-              <stop offset="100%" stopColor="#10B981" />
+            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#DC2626" />
+              <stop offset="40%" stopColor="#F59E0B" />
+              <stop offset="70%" stopColor="#10B981" />
+              <stop offset="100%" stopColor="#059669" />
             </linearGradient>
           </defs>
 
-          {/* Background arc */}
+          {/* Background arc (gray) */}
           <path
-            d={gaugeMetrics.bgPath}
+            d={bgArc}
             fill="none"
             stroke="#E2E8F0"
-            strokeWidth={18}
+            strokeWidth={strokeW}
             strokeLinecap="round"
           />
 
-          {/* Score arc */}
-          <path
-            d={gaugeMetrics.fillPath}
-            fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth={18}
-            strokeLinecap="round"
-          />
+          {/* Score fill arc (colored gradient) */}
+          {fillArc && (
+            <path
+              d={fillArc}
+              fill="none"
+              stroke="url(#gauge-gradient)"
+              strokeWidth={strokeW}
+              strokeLinecap="round"
+            />
+          )}
 
           {/* Needle */}
           <line
-            x1={gaugeMetrics.cx}
-            y1={gaugeMetrics.cy}
-            x2={gaugeMetrics.needleX}
-            y2={gaugeMetrics.needleY}
-            stroke={color}
+            x1={cx}
+            y1={cy}
+            x2={needleX}
+            y2={needleY}
+            stroke={scoreColor}
             strokeWidth={2.5}
             strokeLinecap="round"
           />
-          <circle
-            cx={gaugeMetrics.cx}
-            cy={gaugeMetrics.cy}
-            r={6}
-            fill={color}
-          />
-          <circle
-            cx={gaugeMetrics.cx}
-            cy={gaugeMetrics.cy}
-            r={3}
-            fill="#FFFFFF"
-          />
+          {/* Needle hub */}
+          <circle cx={cx} cy={cy} r={6} fill={scoreColor} />
+          <circle cx={cx} cy={cy} r={3} fill="white" />
 
-          {/* Score text */}
+          {/* Needle tip dot */}
+          <circle cx={scoreX} cy={scoreY} r={4} fill={scoreColor} stroke="white" strokeWidth={1.5} />
+
+          {/* Score number */}
           <text
-            x={gaugeMetrics.cx}
-            y={gaugeMetrics.cy + 30}
+            x={cx}
+            y={cy + 32}
             textAnchor="middle"
             fill="#0F172A"
-            fontSize={28}
+            fontSize={32}
             fontWeight="700"
-            fontFamily="monospace"
+            fontFamily="var(--font-mono), monospace"
           >
-            {score}
-          </text>
-          <text
-            x={gaugeMetrics.cx}
-            y={gaugeMetrics.cy + 45}
-            textAnchor="middle"
-            fill="#94A3B8"
-            fontSize={10}
-          >
-            / 100
+            {clampedScore}
           </text>
 
           {/* Min / Max labels */}
-          <text x={30} y={gaugeMetrics.cy + 8} fill="#94A3B8" fontSize={10}>
+          <text x={startX - 2} y={cy + 20} textAnchor="middle" fill="#94A3B8" fontSize={11}>
             0
           </text>
-          <text x={262} y={gaugeMetrics.cy + 8} fill="#94A3B8" fontSize={10}>
+          <text x={endX + 2} y={cy + 20} textAnchor="middle" fill="#94A3B8" fontSize={11}>
             100
           </text>
         </svg>
       </div>
 
       {/* Use case badge */}
-      <div className="mb-5 flex justify-center">
-        <span className="rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
-          {use_case}
+      <div className="mb-5 flex justify-center -mt-2">
+        <span className="rounded-full bg-[#6366F1]/10 px-3 py-1 text-xs font-medium text-[#6366F1] ring-1 ring-inset ring-[#6366F1]/20">
+          {use_case.replace(/_/g, ' ')}
         </span>
       </div>
 
-      {/* Chain multiplication diagram */}
+      {/* Chain latency comparison */}
       <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#475569]">
-          Chain latency comparison
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">
+          Chain Latency Comparison
         </p>
 
         {/* Chain formula */}
@@ -203,48 +193,44 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
           </span>
         </div>
 
-        {/* GPU vs Cerebras bars */}
-        <div className="space-y-3">
+        {/* GPU bar */}
+        <div className="space-y-2.5">
           <div className="flex items-center gap-3">
-            <span className="w-20 text-right text-xs text-[#475569]">GPU</span>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
+            <span className="w-16 text-right text-xs font-medium text-[#475569]">GPU</span>
+            <div className="flex-1 flex items-center gap-2">
+              <div className="flex-1 h-7 rounded-md bg-[#E2E8F0] overflow-hidden">
                 <div
-                  className="h-6 rounded bg-red-500/60"
-                  style={{ width: `${gpuBarW}%`, maxWidth: '100%' }}
+                  className="h-full rounded-md bg-red-400"
+                  style={{ width: `${gpuBarPct}%` }}
                 />
-                <span className="whitespace-nowrap font-mono text-xs text-[#0F172A]">
-                  {formatTime(gpu_time_seconds)}
-                </span>
               </div>
+              <span className="w-14 text-right font-mono text-xs font-semibold text-[#0F172A]">
+                {formatTime(gpu_time_seconds)}
+              </span>
             </div>
           </div>
 
+          {/* Cerebras bar */}
           <div className="flex items-center gap-3">
-            <span className="w-20 text-right text-xs text-[#475569]">
-              Cerebras
-            </span>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
+            <span className="w-16 text-right text-xs font-medium text-[#475569]">Cerebras</span>
+            <div className="flex-1 flex items-center gap-2">
+              <div className="flex-1 h-7 rounded-md bg-[#E2E8F0] overflow-hidden">
                 <div
-                  className="h-6 rounded bg-emerald-500/60"
-                  style={{
-                    width: `${Math.max(cerebrasBarW, 2)}%`,
-                    maxWidth: '100%',
-                  }}
+                  className="h-full rounded-md bg-emerald-400"
+                  style={{ width: `${Math.min(cerebrasBarPct, 100)}%` }}
                 />
-                <span className="whitespace-nowrap font-mono text-xs text-[#0F172A]">
-                  {formatTime(cerebras_time_seconds)}
-                </span>
               </div>
+              <span className="w-14 text-right font-mono text-xs font-semibold text-[#0F172A]">
+                {formatTime(cerebras_time_seconds)}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Speedup callout */}
-        <div className="mt-3 flex items-center justify-center gap-2">
-          <span className="text-xs text-[#475569]">Speedup:</span>
-          <span className="font-mono text-lg font-bold text-emerald-600">
+        <div className="mt-4 flex items-center justify-center gap-2 rounded-md bg-emerald-50 px-3 py-2">
+          <span className="text-xs font-medium text-[#475569]">Speedup:</span>
+          <span className="font-mono text-xl font-bold text-emerald-600">
             {speedup_factor.toFixed(1)}x
           </span>
           <span className="text-xs text-[#94A3B8]">faster on Cerebras</span>
@@ -252,26 +238,4 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
       </div>
     </div>
   );
-}
-
-/* ---------- SVG arc helper ---------- */
-
-function describeArc(
-  cx: number,
-  cy: number,
-  r: number,
-  startAngle: number,
-  endAngle: number
-): string {
-  const x1 = cx + r * Math.cos(startAngle);
-  const y1 = cy - r * Math.sin(startAngle);
-  const x2 = cx + r * Math.cos(endAngle);
-  const y2 = cy - r * Math.sin(endAngle);
-
-  // Determine sweep: if start > end going clockwise in SVG coordinates
-  const diff = startAngle - endAngle;
-  const largeArc = Math.abs(diff) > Math.PI ? 1 : 0;
-
-  // We sweep clockwise in SVG (which is sweep-flag=1) from start to end
-  return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2}`;
 }
