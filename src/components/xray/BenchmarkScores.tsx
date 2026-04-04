@@ -147,7 +147,7 @@ export default function BenchmarkScores({ modelCard, modelType }: BenchmarkScore
   if (benchmarks.length === 0) {
     return (
       <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
-        <h3 className="text-sm font-semibold text-[#0F172A]">Benchmark Scores</h3>
+        <h3 className="text-sm font-semibold text-[#0F172A]">Benchmark Scores <InfoTip text="Benchmark scores automatically extracted from the model card. Scores shown are from the largest model variant." /></h3>
         <div className="mt-6 flex flex-col items-center py-8 text-center">
           <p className="text-sm text-[#94A3B8]">No benchmark scores found in the model card.</p>
           <p className="mt-1 text-xs text-[#94A3B8]">Check the model&apos;s HuggingFace page for evaluation results.</p>
@@ -160,7 +160,7 @@ export default function BenchmarkScores({ modelCard, modelType }: BenchmarkScore
     <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#0F172A]">Benchmark Scores</h3>
+        <h3 className="text-sm font-semibold text-[#0F172A]">Benchmark Scores <InfoTip text="Benchmark scores automatically extracted from the model card. Scores shown are from the largest model variant." /></h3>
         <div className="flex items-center gap-3">
           <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${badge.cls}`}>
             {badge.label}

@@ -296,11 +296,13 @@ export default function PerformanceCost({
             label="Prefill Throughput"
             value={`${fmtNum(prefillTps)} tok/s`}
             subtitle="~8x decode speed"
+            tip="Prompt processing speed. Higher = faster time to first token for long prompts."
           />
           <StatCard
             label="E2E Latency"
             value={fmtSeconds(e2eLatencySeconds)}
             subtitle="500-token response"
+            tip="End-to-end time for a complete 500-token response including TTFT and decode."
           />
         </div>
       </div>
