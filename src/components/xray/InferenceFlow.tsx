@@ -288,7 +288,14 @@ export default function InferenceFlow(props: InferenceFlowProps) {
 
         {liveResult && (
           <div className="mt-2 rounded-md bg-white px-3 py-2">
-            <p className="text-[10px] text-[#94A3B8] mb-1">Model: <span className="font-medium text-[#475569]">{liveResult.model}</span></p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-[10px] text-[#94A3B8]">Tested on: <span className="font-semibold text-[#6366F1]">{liveResult.model}</span></p>
+              {liveResult.model !== props.modelName.split('/').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') && (
+                <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[8px] font-medium text-amber-700">
+                  {props.modelName.split('/').pop()} not on Cerebras — using closest available model
+                </span>
+              )}
+            </div>
             <p className="font-mono text-[11px] text-[#0F172A]">&quot;{liveResult.content.slice(0, 200)}{liveResult.content.length > 200 ? '...' : ''}&quot;</p>
           </div>
         )}
