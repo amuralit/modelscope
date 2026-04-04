@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
 
       case "trending": {
         const params = new URLSearchParams({
-          sort: "trending",
+          sort: "trendingScore",
           direction: "-1",
           pipeline_tag: "text-generation",
           limit: "50",
