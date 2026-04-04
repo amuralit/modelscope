@@ -22,7 +22,9 @@ import {
   fetchTokenizerConfig,
   fetchModelCard,
   parseModelIdFromUrl,
+  checkModelAccess,
 } from '@/lib/api/huggingface';
+import GatedModelWizard from '@/components/evaluate/GatedModelWizard';
 
 // --- Modules ---
 import { runArchitectureScan } from '@/lib/modules/architectureScan';
@@ -199,6 +201,7 @@ function EvaluatePageInner() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [activeTab, setActiveTab] = useState<'url' | 'manual'>('url');
   const autoStartedRef = useRef(false);
+  const [gatedInfo, setGatedInfo] = useState<{ modelId: string; modelUrl: string } | null>(null);
 
   // ----- Run module with timing -----
   const runModule = useCallback(
@@ -630,18 +633,15 @@ function EvaluatePageInner() {
               {results.architecture && (
                 <ArchitectureDiagram
                   archResult={{
-                    num_layers: modelConfig?.num_hidden_layers ?? 0,
-                    num_attention_heads: modelConfig?.num_attention_heads ?? 0,
-                    num_kv_heads:
-                      modelConfig?.num_key_value_heads ?? modelConfig?.num_attention_heads ?? 0,
-                    hidden_size: modelConfig?.hidden_size ?? 0,
-                    intermediate_size: modelConfig?.intermediate_size ?? 0,
+                    num_layers: results.architecture.numLayers,
+                    num_attention_heads: results.architecture.numAttentionHeads,
+                    num_kv_heads: results.architecture.numKVHeads,
+                    hidden_size: results.architecture.hiddenSize,
+                    intermediate_size: results.architecture.intermediateSize,
                     is_moe: results.architecture.isMoE,
-                    num_experts: modelConfig?.num_local_experts,
+                    num_experts: results.architecture.numExperts,
                     attention_type: results.architecture.attentionVariant,
-                    head_dim: Math.floor(
-                      (modelConfig?.hidden_size ?? 0) / (modelConfig?.num_attention_heads ?? 1),
-                    ),
+                    head_dim: results.architecture.headDim,
                   }}
                 />
               )}

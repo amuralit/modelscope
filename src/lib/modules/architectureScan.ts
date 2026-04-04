@@ -15,24 +15,25 @@ export async function runArchitectureScan(
 ): Promise<ArchitectureScanResult> {
   // ---- Basic fields (with safe defaults) -----------------------------------
   const modelType = config.model_type ?? "unknown";
-  const numLayers = config.num_hidden_layers;
-  const numAttentionHeads = config.num_attention_heads;
+  const numLayers = config.num_hidden_layers ?? 0;
+  const numAttentionHeads = config.num_attention_heads ?? 0;
   const numKVHeads = config.num_key_value_heads ?? numAttentionHeads;
-  const hiddenSize = config.hidden_size;
-  const intermediateSize = config.intermediate_size;
-  const vocabSize = config.vocab_size;
-  const contextWindow = config.max_position_embeddings;
+  const hiddenSize = config.hidden_size ?? 0;
+  const intermediateSize = config.intermediate_size ?? 0;
+  const vocabSize = config.vocab_size ?? 256000; // sensible default
+  const contextWindow = config.max_position_embeddings ?? 8192; // sensible default
   const architectures = config.architectures ?? [];
 
   // ---- MoE detection -------------------------------------------------------
-  const isMoE =
-    config.num_local_experts !== undefined && config.num_local_experts > 0;
-  const numExperts = config.num_local_experts ?? 0;
+  const numExperts = config.num_local_experts ?? config.num_experts ?? 0;
+  const isMoE = numExperts > 0;
   const numExpertsPerTok = config.num_experts_per_tok ?? 0;
 
   // ---- Attention variant ---------------------------------------------------
   let attentionType: "MHA" | "GQA" | "MQA";
-  if (numKVHeads === 1) {
+  if (numAttentionHeads === 0) {
+    attentionType = "MHA";
+  } else if (numKVHeads === 1) {
     attentionType = "MQA";
   } else if (numKVHeads < numAttentionHeads) {
     attentionType = "GQA";
@@ -41,44 +42,34 @@ export async function runArchitectureScan(
   }
 
   // ---- Head dimension ------------------------------------------------------
-  const headDim = Math.floor(hiddenSize / numAttentionHeads);
+  const headDim =
+    config.head_dim ??
+    (numAttentionHeads > 0 ? Math.floor(hiddenSize / numAttentionHeads) : 0);
 
   // ---- Parameter estimation ------------------------------------------------
-  // Embedding layers (input + output / tied LM head)
   const embeddingParams = vocabSize * hiddenSize * 2;
 
-  // Self-attention per layer: Q, K, V projections + output projection
-  // Q: hidden_size -> num_attention_heads * head_dim  (= hidden_size * hidden_size)
-  // K: hidden_size -> num_kv_heads * head_dim
-  // V: hidden_size -> num_kv_heads * head_dim
-  // O: num_attention_heads * head_dim -> hidden_size (= hidden_size * hidden_size)
   const qParams = hiddenSize * numAttentionHeads * headDim;
   const kParams = hiddenSize * numKVHeads * headDim;
   const vParams = hiddenSize * numKVHeads * headDim;
   const oParams = numAttentionHeads * headDim * hiddenSize;
   const attnParamsPerLayer = qParams + kParams + vParams + oParams;
 
-  // MLP per layer: gate_proj + up_proj + down_proj
-  // gate: hidden_size -> intermediate_size
-  // up:   hidden_size -> intermediate_size
-  // down: intermediate_size -> hidden_size
   let mlpParamsPerLayer = hiddenSize * intermediateSize * 3;
 
-  // For MoE: each expert has its own MLP, plus a small router
   if (isMoE) {
-    const routerParams = hiddenSize * numExperts; // router linear
+    const routerParams = hiddenSize * numExperts;
     mlpParamsPerLayer = mlpParamsPerLayer * numExperts + routerParams;
   }
 
   const totalParams =
     embeddingParams + numLayers * (attnParamsPerLayer + mlpParamsPerLayer);
 
-  // Active parameters (for MoE, only a subset of experts fire per token)
   let activeParams = totalParams;
   if (isMoE && numExperts > 0 && numExpertsPerTok > 0) {
     const activeMlpPerLayer =
       hiddenSize * intermediateSize * 3 * numExpertsPerTok +
-      hiddenSize * numExperts; // router is always active
+      hiddenSize * numExperts;
     activeParams =
       embeddingParams + numLayers * (attnParamsPerLayer + activeMlpPerLayer);
   }
@@ -94,20 +85,17 @@ export async function runArchitectureScan(
 
   // ---- Warnings ------------------------------------------------------------
   const warnings: string[] = [];
-  if (numKVHeads > numAttentionHeads) {
-    warnings.push(
-      "num_key_value_heads > num_attention_heads — config may be invalid",
-    );
+  if (numLayers === 0) {
+    warnings.push("num_hidden_layers is 0 or missing — config may be incomplete");
   }
-  if (hiddenSize % numAttentionHeads !== 0) {
-    warnings.push(
-      "hidden_size is not evenly divisible by num_attention_heads",
-    );
+  if (numKVHeads > numAttentionHeads && numAttentionHeads > 0) {
+    warnings.push("num_key_value_heads > num_attention_heads — config may be invalid");
+  }
+  if (hiddenSize > 0 && numAttentionHeads > 0 && hiddenSize % numAttentionHeads !== 0) {
+    warnings.push("hidden_size is not evenly divisible by num_attention_heads");
   }
   if (isMoE && numExpertsPerTok === 0) {
-    warnings.push(
-      "MoE model detected but num_experts_per_tok is missing or 0",
-    );
+    warnings.push("MoE model detected but num_experts_per_tok is missing or 0");
   }
 
   // ---- Architecture family classification ----------------------------------
@@ -122,7 +110,9 @@ export async function runArchitectureScan(
     typeLower.includes("qwen") ||
     typeLower.includes("gemma") ||
     typeLower.includes("phi") ||
-    typeLower.includes("deepseek")
+    typeLower.includes("deepseek") ||
+    typeLower.includes("internlm") ||
+    typeLower.includes("yi")
   ) {
     architectureFamily = "LlamaFamily";
   } else if (typeLower.includes("gpt2") || typeLower.includes("gpt_neo")) {
@@ -150,24 +140,16 @@ export async function runArchitectureScan(
     architectureFamily !== "Unknown" && architectureFamily !== "OtherTransformer";
 
   if (isMoE) {
-    // MoE standard architectures
-    if (isStandardTransformer) {
-      score = 70 + Math.round(Math.random() * 15); // 70-85
-    } else {
-      score = 40 + Math.round(Math.random() * 20); // 40-60 novel/hybrid
-    }
+    score = isStandardTransformer ? 78 : 50;
   } else if (isStandardTransformer) {
-    // Dense standard transformer
-    score = 85 + Math.round(Math.random() * 10); // 85-95
+    score = 89;
   } else if (architectureFamily === "OtherTransformer") {
-    // Novel / hybrid architecture
-    score = 40 + Math.round(Math.random() * 20); // 40-60
+    score = 50;
   } else {
-    // Completely unknown
-    score = 30 + Math.round(Math.random() * 10); // 30-40
+    score = 35;
   }
 
-  // Bonus: GQA/MQA are well-supported on Cerebras
+  // Bonus: GQA/MQA
   if (attentionType === "GQA") score = Math.min(100, score + 3);
   if (attentionType === "MQA") score = Math.min(100, score + 2);
 
@@ -183,5 +165,16 @@ export async function runArchitectureScan(
     attentionVariant: attentionType,
     supportedFeatures,
     warnings,
+    // Extra fields the dashboard uses
+    numLayers,
+    numAttentionHeads,
+    numKVHeads,
+    hiddenSize,
+    intermediateSize,
+    headDim,
+    vocabSize,
+    contextWindow,
+    numExperts: isMoE ? numExperts : 0,
+    numExpertsPerTok: isMoE ? numExpertsPerTok : 0,
   };
 }

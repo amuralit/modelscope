@@ -39,6 +39,48 @@ async function handleHFError(res: Response, modelId?: string | null): Promise<Ne
   return NextResponse.json({ error: `HuggingFace API error: ${res.status} ${res.statusText}` }, { status: res.status });
 }
 
+/**
+ * Flatten nested configs (e.g. Gemma 3 puts arch fields inside `text_config`).
+ * Also normalize field name variants (num_experts vs num_local_experts).
+ */
+function normalizeConfig(raw: Record<string, any>): Record<string, any> {
+  // Start with the raw config
+  const config = { ...raw };
+
+  // If key arch fields are missing at top level but exist in text_config, merge them up
+  const nested = raw.text_config ?? raw.language_config ?? raw.llm_config;
+  if (nested && typeof nested === "object") {
+    const fields = [
+      "num_hidden_layers", "num_attention_heads", "num_key_value_heads",
+      "hidden_size", "intermediate_size", "vocab_size", "max_position_embeddings",
+      "num_local_experts", "num_experts_per_tok", "num_experts", "num_experts_per_tok",
+      "head_dim", "rope_theta", "sliding_window",
+    ];
+    for (const f of fields) {
+      if (config[f] === undefined && nested[f] !== undefined) {
+        config[f] = nested[f];
+      }
+    }
+    // Inherit model_type if top-level is a multimodal wrapper
+    if (!config.model_type_text) {
+      config.model_type_text = nested.model_type;
+    }
+  }
+
+  // Normalize num_experts → num_local_experts (Qwen/Gemma style)
+  if (config.num_local_experts === undefined && config.num_experts !== undefined) {
+    config.num_local_experts = config.num_experts;
+  }
+
+  // Some configs use head_dim but not hidden_size/num_attention_heads correctly
+  // Ensure vocab_size exists (some multimodal models only have it nested)
+  if (!config.vocab_size && nested?.vocab_size) {
+    config.vocab_size = nested.vocab_size;
+  }
+
+  return config;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const action = searchParams.get("action");
@@ -52,7 +94,8 @@ export async function GET(req: NextRequest) {
           headers: authHeaders(),
         });
         if (!res.ok) return handleHFError(res, modelId);
-        const data = await res.json();
+        const raw = await res.json();
+        const data = normalizeConfig(raw);
         return NextResponse.json(data);
       }
 
@@ -100,6 +143,33 @@ export async function GET(req: NextRequest) {
         if (!res.ok) return handleHFError(res);
         const data = await res.json();
         return NextResponse.json(data);
+      }
+
+      case "check_access": {
+        if (!modelId) return NextResponse.json({ error: "modelId required" }, { status: 400 });
+        // Check model info for gated status
+        const infoRes = await fetch(`${HF_API}/models/${modelId}`, {
+          headers: authHeaders(),
+        });
+        if (!infoRes.ok) {
+          return NextResponse.json({ accessible: false, gated: false, error: `Model not found (${infoRes.status})` });
+        }
+        const info = await infoRes.json();
+        const gated = info.gated === "manual" || info.gated === "auto" || info.gated === true;
+
+        if (!gated) {
+          return NextResponse.json({ accessible: true, gated: false });
+        }
+
+        // Model is gated — try to fetch config to see if we already have access
+        const configRes = await fetch(`${HF_BASE}/${modelId}/raw/main/config.json`, {
+          headers: authHeaders(),
+        });
+        return NextResponse.json({
+          accessible: configRes.ok,
+          gated: true,
+          modelUrl: `https://huggingface.co/${modelId}`,
+        });
       }
 
       case "test": {

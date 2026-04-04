@@ -62,17 +62,22 @@ export async function runWSEFitAnalysis(
   //
   // We'll derive hidden_size & num_layers from param count using typical ratios.
 
-  const estimatedHiddenSize = estimateHiddenSize(totalParams);
-  const estimatedNumLayers = estimateNumLayers(totalParams);
+  // Use actual values from arch scan when available, fall back to estimates
+  const actualHiddenSize = archResult.hiddenSize > 0 ? archResult.hiddenSize : estimateHiddenSize(totalParams);
+  const actualNumLayers = archResult.numLayers > 0 ? archResult.numLayers : estimateNumLayers(totalParams);
+  const actualNumKVHeads = archResult.numKVHeads > 0 ? archResult.numKVHeads : archResult.numAttentionHeads;
+  const actualHeadDim = archResult.headDim > 0 ? archResult.headDim : 128;
   const kvRatio = archResult.attentionVariant === "MHA" ? 1.0
     : archResult.attentionVariant === "MQA" ? 0.05
-    : 0.25; // GQA typical ratio
+    : (actualNumKVHeads > 0 && archResult.numAttentionHeads > 0)
+      ? actualNumKVHeads / archResult.numAttentionHeads
+      : 0.25;
 
-  // Per-token KV cache in bytes (FP16)
-  const kvCachePerToken = 2 * estimatedNumLayers * estimatedHiddenSize * 2 * kvRatio;
+  // Per-token KV cache in bytes (FP16): 2 (K+V) × layers × kv_heads × head_dim × 2 bytes
+  const kvCachePerToken = 2 * actualNumLayers * actualNumKVHeads * actualHeadDim * 2;
 
-  // Estimate max context from model size bracket (conservative)
-  const maxContext = estimateMaxContext(totalParams);
+  // Use actual context window or estimate from model size
+  const maxContext = archResult.contextWindow > 0 ? archResult.contextWindow : estimateMaxContext(totalParams);
   const kvCacheAtMaxContext = kvCachePerToken * maxContext;
 
   // ---- Total memory required (FP16 weights + KV cache at max ctx) ----------
@@ -101,20 +106,15 @@ export async function runWSEFitAnalysis(
 
   let score: number;
   if (fp8Wafers <= 1) {
-    // Fits on 1 wafer at FP8
-    score = 95 + Math.round(Math.random() * 5); // 95-100
+    score = 97;
   } else if (fp16Wafers <= 1) {
-    // Fits on 1 wafer at FP16
-    score = 85 + Math.round(Math.random() * 10); // 85-95
+    score = 90;
   } else if (fp16Wafers <= 2) {
-    // 2 wafers at FP16
-    score = 65 + Math.round(Math.random() * 15); // 65-80
+    score = 72;
   } else if (fp16Wafers <= 4) {
-    // 3-4 wafers
-    score = 45 + Math.round(Math.random() * 20); // 45-65
+    score = 55;
   } else {
-    // 5+ wafers
-    score = 20 + Math.round(Math.random() * 25); // 20-45
+    score = 32;
   }
 
   // ---- Recommendations -----------------------------------------------------
@@ -201,9 +201,9 @@ function estimateMaxContext(params: number): number {
 
 /** Estimate tokens/second based on parameter count (single WSE-3). */
 function estimateTokensPerSecond(params: number): number {
-  if (params < 10e9) return 2000 + Math.round(Math.random() * 1000); // 2000-3000
-  if (params < 30e9) return 1500 + Math.round(Math.random() * 1000); // 1500-2500
-  if (params < 70e9) return 800 + Math.round(Math.random() * 700); // 800-1500
-  if (params < 200e9) return 400 + Math.round(Math.random() * 600); // 400-1000
-  return 200 + Math.round(Math.random() * 400); // 200-600
+  if (params < 10e9) return 2500;
+  if (params < 30e9) return 2000;
+  if (params < 70e9) return 1100;
+  if (params < 200e9) return 700;
+  return 400;
 }

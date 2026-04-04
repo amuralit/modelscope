@@ -65,6 +65,25 @@ export async function testConnection(): Promise<boolean> {
 }
 
 /**
+ * Check if a model is gated and whether we have access.
+ * Returns { accessible, gated, modelUrl? }
+ */
+export async function checkModelAccess(modelId: string): Promise<{
+  accessible: boolean;
+  gated: boolean;
+  modelUrl?: string;
+  error?: string;
+}> {
+  try {
+    const params = new URLSearchParams({ action: "check_access", modelId });
+    const res = await fetch(`/api/hf?${params.toString()}`);
+    return res.json();
+  } catch {
+    return { accessible: false, gated: false, error: "Failed to check access" };
+  }
+}
+
+/**
  * Extract a `owner/model` id from a HuggingFace URL.
  */
 export function parseModelIdFromUrl(url: string): string | null {

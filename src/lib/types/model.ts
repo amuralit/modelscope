@@ -10,13 +10,18 @@ export interface ModelConfig {
   num_key_value_heads?: number;
   hidden_size: number;
   intermediate_size: number;
-  vocab_size: number;
-  max_position_embeddings: number;
+  vocab_size?: number;
+  max_position_embeddings?: number;
   num_local_experts?: number;
+  num_experts?: number;
   num_experts_per_tok?: number;
   rope_theta?: number;
   torch_dtype?: string;
   architectures?: string[];
+  head_dim?: number;
+  // Nested configs (multimodal models like Gemma 3)
+  text_config?: Partial<ModelConfig>;
+  vision_config?: Record<string, unknown>;
 }
 
 /** Subset of HuggingFace Hub model metadata returned by the API. */
@@ -48,6 +53,17 @@ export interface ArchitectureScanResult {
   attentionVariant: string; // "MHA" | "GQA" | "MQA"
   supportedFeatures: string[];
   warnings: string[];
+  // Detailed fields for dashboard visualizations
+  numLayers: number;
+  numAttentionHeads: number;
+  numKVHeads: number;
+  hiddenSize: number;
+  intermediateSize: number;
+  headDim: number;
+  vocabSize: number;
+  contextWindow: number;
+  numExperts: number;
+  numExpertsPerTok: number;
 }
 
 export interface WSEFitResult {
