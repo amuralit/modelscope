@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
             Authorization: `Bearer ${getKey()}`,
           },
           body: JSON.stringify({
-            model: MODEL,
+            model: DEFAULT_MODEL,
             messages: [{ role: "user", content: prompt }],
           }),
         });
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
             Authorization: `Bearer ${getKey()}`,
           },
           body: JSON.stringify({
-            model: MODEL,
+            model: DEFAULT_MODEL,
             messages: [{ role: "user", content: "Hi" }],
           }),
         });
