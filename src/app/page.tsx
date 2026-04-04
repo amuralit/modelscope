@@ -5,83 +5,61 @@ import { useEffect, useState } from 'react';
 import URLInput from '@/components/evaluate/URLInput';
 
 // ---------------------------------------------------------------------------
-// Feature card data
+// Popular models for quick access
 // ---------------------------------------------------------------------------
 
-const features = [
-  {
-    title: 'Architecture X-ray',
-    description: 'See inside any model\u2019s layers, heads, and experts',
-    icon: (
-      <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-        {/* Layers icon */}
-        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-        <path d="M2 17l10 5 10-5" />
-        <path d="M2 12l10 5 10-5" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Launch Readiness',
-    description: '7-module analysis with GO/NO-GO verdict',
-    icon: (
-      <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-        {/* Gauge icon */}
-        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-        <path d="M12 6v6l4 2" />
-        <path d="M16.24 7.76l-1.42 1.42" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Day-0 Partnership',
-    description: 'Evaluate pre-release models from manual specs',
-    icon: (
-      <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-        {/* Shield icon */}
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    ),
-  },
+const POPULAR_MODELS = [
+  { name: 'Gemma 3 27B', org: 'Google', params: '27B', type: 'Dense', id: 'google/gemma-3-27b-it' },
+  { name: 'Qwen3 30B-A3B', org: 'Alibaba', params: '30B', type: 'MoE', id: 'Qwen/Qwen3-30B-A3B' },
+  { name: 'DeepSeek V3', org: 'DeepSeek', params: '671B', type: 'MoE', id: 'deepseek-ai/DeepSeek-V3-0324' },
+  { name: 'Mistral Small 24B', org: 'Mistral', params: '24B', type: 'Dense', id: 'mistralai/Mistral-Small-24B-Instruct-2501' },
 ];
 
-// ---------------------------------------------------------------------------
-// Animated particles background
-// ---------------------------------------------------------------------------
+const STATS = [
+  { value: '7', label: 'Analysis Modules', desc: 'Architecture, WSE Fit, Speed, REAP, Agentic, Competitive Gap, Demand' },
+  { value: '44 GB', label: 'WSE-3 SRAM', desc: 'Cerebras Wafer Scale Engine 3 on-chip memory' },
+  { value: '<8s', label: 'Analysis Time', desc: 'All 7 modules run in parallel' },
+  { value: 'GO / SKIP', label: 'Launch Verdict', desc: 'Composite scoring with weighted breakdown' },
+];
 
-function GridBackground() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      {/* Radial gradient glow */}
-      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 h-[600px] w-[900px] rounded-full bg-accent/[0.12] blur-[120px]" />
-      {/* Dot grid */}
-      <svg className="absolute inset-0 h-full w-full opacity-[0.08]">
-        <defs>
-          <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="currentColor" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Floating stat pill (decorative)
-// ---------------------------------------------------------------------------
-
-function StatPill({ label, value, className }: { label: string; value: string; className?: string }) {
-  return (
-    <div
-      className={`inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface/80 px-3.5 py-1.5 text-xs backdrop-blur-sm ${className ?? ''}`}
-    >
-      <span className="font-mono text-accent">{value}</span>
-      <span className="text-text-muted">{label}</span>
-    </div>
-  );
-}
+const CAPABILITIES = [
+  {
+    title: 'Architecture X-ray',
+    description: 'Deep analysis of layers, attention heads, KV cache, memory footprint, and estimated decode/prefill speeds on WSE-3 hardware.',
+    icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
+    color: 'bg-indigo-500/10 text-indigo-600',
+  },
+  {
+    title: 'Performance & Cost',
+    description: 'TTFT, throughput, and cost estimates. Side-by-side comparison of Cerebras vs GPU inference providers.',
+    icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+    color: 'bg-emerald-500/10 text-emerald-600',
+  },
+  {
+    title: 'Benchmark Extraction',
+    description: 'Automatically extracts MMLU, GPQA, HumanEval, MATH, and other benchmark scores from the model card.',
+    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+    color: 'bg-amber-500/10 text-amber-600',
+  },
+  {
+    title: 'Competitive Intelligence',
+    description: 'Cross-reference against 7 inference providers. Identify first-mover opportunities and speed advantages.',
+    icon: 'M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5',
+    color: 'bg-purple-500/10 text-purple-600',
+  },
+  {
+    title: 'AI Summary Report',
+    description: 'Enterprise-grade executive summary auto-generated by Cerebras Inference. Export as text or copy to clipboard.',
+    icon: 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z',
+    color: 'bg-sky-500/10 text-sky-600',
+  },
+  {
+    title: 'Day-0 Evaluation',
+    description: 'Manual entry mode for pre-release or NDA models. Preset templates for Llama, Gemma, Qwen, DeepSeek architectures.',
+    icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4',
+    color: 'bg-rose-500/10 text-rose-600',
+  },
+];
 
 // ---------------------------------------------------------------------------
 // Page
@@ -91,100 +69,170 @@ export default function HomePage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   const handleModelSubmit = (modelId: string) => {
     router.push(`/evaluate?model=${encodeURIComponent(modelId)}`);
   };
 
-  return (
-    <div className="relative flex min-h-screen flex-col">
-      <GridBackground />
+  const handleModelClick = (id: string) => {
+    router.push(`/evaluate?model=${encodeURIComponent(id)}`);
+  };
 
-      {/* ----------------------------------------------------------------- */}
+  return (
+    <div className="relative min-h-screen bg-[#F8FAFC]">
+      {/* Background glow */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/3 h-[600px] w-[800px] rounded-full bg-[#6366F1]/[0.06] blur-[100px]" />
+      </div>
+
+      {/* ================================================================= */}
       {/* Hero */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="relative flex flex-1 flex-col items-center justify-center px-4 pb-16 pt-20 sm:px-8 lg:pt-28">
-        <div
-          className={`mx-auto flex max-w-3xl flex-col items-center text-center transition-all duration-700 ${
-            mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-          }`}
-        >
+      {/* ================================================================= */}
+      <section className="relative px-4 pb-12 pt-16 sm:px-8 lg:pt-20">
+        <div className={`mx-auto max-w-3xl text-center transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           {/* Badge */}
-          <span className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-xs font-medium text-accent">
+          <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#6366F1]/20 bg-[#6366F1]/5 px-3 py-1 text-xs font-medium text-[#6366F1]">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6366F1] opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#6366F1]" />
             </span>
             Built for the AI Models PM at Cerebras
-          </span>
-
-          {/* Title */}
-          <h1 className="text-5xl font-extrabold tracking-tight text-text-primary sm:text-6xl lg:text-7xl">
-            Model
-            <span className="bg-gradient-to-r from-accent to-[#818CF8] bg-clip-text text-transparent">
-              Scope
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-text-secondary sm:text-xl">
-            X-ray any open-weight model.{' '}
-            <span className="text-text-primary">Score its fit for Cerebras Inference.</span>
-          </p>
-
-          {/* Floating stats (decorative) */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <StatPill value="7" label="analysis modules" />
-            <StatPill value="44 GB" label="WSE-3 SRAM" />
-            <StatPill value="GO/NO-GO" label="verdict" />
           </div>
 
+          {/* Title */}
+          <h1 className="text-5xl font-extrabold tracking-tight text-[#0F172A] sm:text-6xl">
+            Model<span className="bg-gradient-to-r from-[#6366F1] to-[#818CF8] bg-clip-text text-transparent">Scope</span>
+          </h1>
+          <p className="mt-4 text-lg text-[#475569]">
+            X-ray any open-weight model. Score its fit for <span className="font-semibold text-[#0F172A]">Cerebras Inference</span>.
+          </p>
+
           {/* URL Input */}
-          <div className="mt-10 w-full max-w-2xl">
+          <div className="mt-8 mx-auto max-w-2xl">
             <URLInput onSubmit={handleModelSubmit} />
           </div>
         </div>
       </section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Feature Cards */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="relative z-10 px-4 pb-24 sm:px-8">
-        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-3">
-          {features.map((feature, i) => (
-            <div
-              key={feature.title}
-              className={`group card flex flex-col gap-4 p-6 transition-all duration-500 ${
-                mounted ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-              }`}
-              style={{ transitionDelay: `${300 + i * 120}ms` }}
-            >
-              {/* Icon */}
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent transition-colors group-hover:bg-accent/20">
-                {feature.icon}
-              </div>
-
-              <h3 className="text-lg font-semibold text-text-primary">
-                {feature.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-text-secondary">
-                {feature.description}
-              </p>
-            </div>
-          ))}
+      {/* ================================================================= */}
+      {/* Popular Models — Quick Launch */}
+      {/* ================================================================= */}
+      <section className={`relative px-4 pb-12 sm:px-8 transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="mx-auto max-w-4xl">
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">
+            Popular models — click to X-ray
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {POPULAR_MODELS.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => handleModelClick(m.id)}
+                className="group rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-left transition-all hover:border-[#6366F1]/30 hover:shadow-sm"
+              >
+                <p className="text-sm font-semibold text-[#0F172A] group-hover:text-[#6366F1] transition-colors">{m.name}</p>
+                <div className="mt-1 flex items-center gap-2 text-[10px] text-[#94A3B8]">
+                  <span>{m.org}</span>
+                  <span className="text-[#E2E8F0]">·</span>
+                  <span className="font-mono">{m.params}</span>
+                  <span className="text-[#E2E8F0]">·</span>
+                  <span className={m.type === 'MoE' ? 'text-amber-500' : 'text-[#6366F1]'}>{m.type}</span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ----------------------------------------------------------------- */}
+      {/* ================================================================= */}
+      {/* Stats Row */}
+      {/* ================================================================= */}
+      <section className={`relative px-4 pb-12 sm:px-8 transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="mx-auto max-w-4xl">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {STATS.map((s) => (
+              <div key={s.label} className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3">
+                <p className="font-mono text-2xl font-bold text-[#6366F1]">{s.value}</p>
+                <p className="text-xs font-semibold text-[#0F172A]">{s.label}</p>
+                <p className="mt-0.5 text-[10px] text-[#94A3B8] leading-tight">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================= */}
+      {/* Capabilities Grid */}
+      {/* ================================================================= */}
+      <section className={`relative px-4 pb-16 sm:px-8 transition-all duration-700 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-6 text-center text-lg font-bold text-[#0F172A]">What ModelScope Analyzes</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {CAPABILITIES.map((cap, i) => (
+              <div
+                key={cap.title}
+                className="group rounded-xl border border-[#E2E8F0] bg-white p-5 transition-all hover:border-[#CBD5E1] hover:shadow-sm"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${cap.color}`}>
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d={cap.icon} />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-semibold text-[#0F172A]">{cap.title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-[#475569]">{cap.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================= */}
+      {/* How It Works */}
+      {/* ================================================================= */}
+      <section className="relative px-4 pb-16 sm:px-8">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-6 text-center text-lg font-bold text-[#0F172A]">How It Works</h2>
+          <div className="flex flex-col gap-0 sm:flex-row sm:gap-4">
+            {[
+              { step: '1', title: 'Paste a model URL', desc: 'Or choose from popular models above' },
+              { step: '2', title: '7 modules analyze in parallel', desc: 'Architecture, WSE fit, speed, REAP, agentic, competitive, demand' },
+              { step: '3', title: 'Get your X-ray dashboard', desc: 'Composite score, benchmarks, cost analysis, AI summary' },
+            ].map((s, i) => (
+              <div key={s.step} className="flex flex-1 items-start gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 sm:flex-col sm:text-center sm:items-center">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#6366F1] text-xs font-bold text-white">
+                  {s.step}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#0F172A]">{s.title}</p>
+                  <p className="mt-0.5 text-xs text-[#94A3B8]">{s.desc}</p>
+                </div>
+                {i < 2 && (
+                  <div className="hidden sm:flex items-center justify-center text-[#E2E8F0] absolute right-0 translate-x-1/2">
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================= */}
       {/* Footer */}
-      {/* ----------------------------------------------------------------- */}
-      <footer className="relative z-10 border-t border-border px-4 py-6 text-center">
-        <p className="text-xs text-text-muted">
-          Built by Arun Muralitharan &nbsp;|&nbsp; Designed for the AI Models PM at Cerebras
-        </p>
+      {/* ================================================================= */}
+      <footer className="relative border-t border-[#E2E8F0] px-4 py-6">
+        <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs text-[#94A3B8]">
+            Built by <span className="font-medium text-[#475569]">Arun Muralitharan</span> &nbsp;·&nbsp; Designed for the AI Models PM at Cerebras
+          </p>
+          <div className="flex items-center gap-4 text-xs text-[#94A3B8]">
+            <span>Powered by Cerebras Inference</span>
+            <span className="text-[#E2E8F0]">·</span>
+            <span>HuggingFace API</span>
+            <span className="text-[#E2E8F0]">·</span>
+            <span>Next.js on Vercel</span>
+          </div>
+        </div>
       </footer>
     </div>
   );
