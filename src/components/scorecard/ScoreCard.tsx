@@ -13,9 +13,9 @@ function getScoreColor(score: number): string {
 }
 
 function getScoreTextClass(score: number): string {
-  if (score >= 80) return 'text-emerald-400';
-  if (score >= 50) return 'text-amber-400';
-  return 'text-red-400';
+  if (score >= 80) return 'text-emerald-600';
+  if (score >= 50) return 'text-amber-600';
+  return 'text-red-600';
 }
 
 function getVerdictBadge(verdict: 'GO' | 'EVALUATE' | 'SKIP'): {
@@ -29,21 +29,21 @@ function getVerdictBadge(verdict: 'GO' | 'EVALUATE' | 'SKIP'): {
       return {
         label: 'GO \u2014 Launch immediately',
         bgClass: 'bg-emerald-500/15',
-        textClass: 'text-emerald-400',
+        textClass: 'text-emerald-600',
         ringClass: 'ring-emerald-500/30',
       };
     case 'EVALUATE':
       return {
         label: 'EVALUATE \u2014 Needs PM judgment',
         bgClass: 'bg-amber-500/15',
-        textClass: 'text-amber-400',
+        textClass: 'text-amber-600',
         ringClass: 'ring-amber-500/30',
       };
     case 'SKIP':
       return {
         label: 'SKIP \u2014 Low Cerebras fit',
         bgClass: 'bg-red-500/15',
-        textClass: 'text-red-400',
+        textClass: 'text-red-600',
         ringClass: 'ring-red-500/30',
       };
   }
@@ -66,7 +66,7 @@ export default function ScoreCard({
   const dashOffset = circumference - progress;
 
   return (
-    <div className="rounded-[16px] border border-[#1F2937] bg-[#111827] p-8 text-center">
+    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-8 text-center">
       {/* Circular progress ring with score */}
       <div className="relative mx-auto mb-6 h-[180px] w-[180px]">
         <svg
@@ -79,7 +79,7 @@ export default function ScoreCard({
             cy="80"
             r={radius}
             fill="none"
-            stroke="#1F2937"
+            stroke="#E2E8F0"
             strokeWidth={strokeWidth}
           />
           {/* Progress ring */}
@@ -103,14 +103,14 @@ export default function ScoreCard({
           >
             {compositeScore}
           </span>
-          <span className="mt-1 text-xs font-medium tracking-wider text-[#6B7280] uppercase">
+          <span className="mt-1 text-xs font-medium tracking-wider text-[#94A3B8] uppercase">
             / 100
           </span>
         </div>
       </div>
 
       {/* Verdict label */}
-      <p className="mb-3 text-sm font-medium text-[#9CA3AF]">
+      <p className="mb-3 text-sm font-medium text-[#475569]">
         {verdictLabel}
       </p>
 

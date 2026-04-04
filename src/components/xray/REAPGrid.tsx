@@ -51,9 +51,9 @@ function getExpertStatus(
 }
 
 const STATUS_STYLES: Record<ExpertStatus, { bg: string; border: string; text: string }> = {
-  keep: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/40', text: 'text-emerald-400' },
-  maybe: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-400' },
-  prune: { bg: 'bg-red-500/20', border: 'border-red-500/40', text: 'text-red-400' },
+  keep: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/40', text: 'text-emerald-600' },
+  maybe: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-600' },
+  prune: { bg: 'bg-red-500/20', border: 'border-red-500/40', text: 'text-red-600' },
 };
 
 export default function REAPGrid({ reapResult }: REAPGridProps) {
@@ -90,14 +90,14 @@ export default function REAPGrid({ reapResult }: REAPGridProps) {
   // Dense / not compatible => N/A card
   if (!is_moe || !compatible) {
     return (
-      <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#F9FAFB]">
+      <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">
           REAP Expert Pruning
         </h3>
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#1F2937]">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#E2E8F0]">
             <svg
-              className="h-6 w-6 text-[#6B7280]"
+              className="h-6 w-6 text-[#94A3B8]"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -110,8 +110,8 @@ export default function REAPGrid({ reapResult }: REAPGridProps) {
               />
             </svg>
           </div>
-          <p className="text-sm font-medium text-[#9CA3AF]">Not Applicable</p>
-          <p className="mt-1 max-w-xs text-xs text-[#6B7280]">
+          <p className="text-sm font-medium text-[#475569]">Not Applicable</p>
+          <p className="mt-1 max-w-xs text-xs text-[#94A3B8]">
             {!is_moe
               ? 'REAP expert pruning is only applicable to Mixture-of-Experts models.'
               : reason}
@@ -122,22 +122,22 @@ export default function REAPGrid({ reapResult }: REAPGridProps) {
   }
 
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#F9FAFB]">
+        <h3 className="text-sm font-semibold text-[#0F172A]">
           REAP Expert Pruning
         </h3>
         <div className="flex items-center gap-2">
-          <span className="font-mono text-lg font-semibold text-[#F9FAFB]">
+          <span className="font-mono text-lg font-semibold text-[#0F172A]">
             {score}
           </span>
-          <span className="text-xs text-[#6B7280]">/ 100</span>
+          <span className="text-xs text-[#94A3B8]">/ 100</span>
         </div>
       </div>
 
       {/* Expert grid */}
       <div className="mb-4">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#475569]">
           Expert Grid ({num_experts} experts)
         </p>
         <div
@@ -165,25 +165,25 @@ export default function REAPGrid({ reapResult }: REAPGridProps) {
       <div className="mb-4 flex gap-4 text-xs">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded-sm bg-emerald-500/40" />
-          <span className="text-[#9CA3AF]">Keep ({keepCount})</span>
+          <span className="text-[#475569]">Keep ({keepCount})</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded-sm bg-amber-500/40" />
-          <span className="text-[#9CA3AF]">Maybe ({maybeCount})</span>
+          <span className="text-[#475569]">Maybe ({maybeCount})</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded-sm bg-red-500/40" />
-          <span className="text-[#9CA3AF]">Prune ({pruneCount})</span>
+          <span className="text-[#475569]">Prune ({pruneCount})</span>
         </span>
       </div>
 
       {/* Pruning slider */}
-      <div className="mb-4 rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
+      <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#475569]">
             Pruning Calculator
           </p>
-          <span className="font-mono text-sm font-semibold text-[#F9FAFB]">
+          <span className="font-mono text-sm font-semibold text-[#0F172A]">
             {pruneSlider.toFixed(0)}%
           </span>
         </div>
@@ -194,18 +194,18 @@ export default function REAPGrid({ reapResult }: REAPGridProps) {
           step={1}
           value={pruneSlider}
           onChange={(e) => setPruneSlider(Number(e.target.value))}
-          className="mb-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#1F2937] accent-indigo-500"
+          className="mb-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#E2E8F0] accent-indigo-500"
         />
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div>
-            <p className="text-[#6B7280]">Memory savings</p>
-            <p className="font-mono font-semibold text-emerald-400">
+            <p className="text-[#94A3B8]">Memory savings</p>
+            <p className="font-mono font-semibold text-emerald-600">
               {formatBytes(adjustedSavings)}
             </p>
           </div>
           <div>
-            <p className="text-[#6B7280]">Wafer reduction</p>
-            <p className="font-mono font-semibold text-[#F9FAFB]">
+            <p className="text-[#94A3B8]">Wafer reduction</p>
+            <p className="font-mono font-semibold text-[#0F172A]">
               {original_wafer_count} &rarr; {pruned_wafer_count}
             </p>
           </div>
@@ -215,16 +215,16 @@ export default function REAPGrid({ reapResult }: REAPGridProps) {
       {/* Precedent badge */}
       <div className="flex items-center gap-2 text-xs">
         {has_reap_precedent ? (
-          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 py-1 text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
+          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 py-1 text-emerald-600 ring-1 ring-inset ring-emerald-500/20">
             <span>{'\u2713'}</span> Has REAP precedent
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-md bg-[#1F2937] px-2.5 py-1 text-[#6B7280] ring-1 ring-inset ring-[#374151]">
+          <span className="inline-flex items-center gap-1 rounded-md bg-[#E2E8F0] px-2.5 py-1 text-[#94A3B8] ring-1 ring-inset ring-[#CBD5E1]">
             No known REAP precedent
           </span>
         )}
         {reason && (
-          <span className="text-[#6B7280]">{reason}</span>
+          <span className="text-[#94A3B8]">{reason}</span>
         )}
       </div>
     </div>

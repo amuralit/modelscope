@@ -87,7 +87,7 @@ export default function Sidebar() {
           <line x1="2" y1="16" x2="8" y2="16" stroke="currentColor" strokeWidth="1.5" />
           <line x1="24" y1="16" x2="30" y2="16" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-        <span className="text-lg font-bold text-[#F9FAFB]">ModelScope</span>
+        <span className="text-lg font-bold text-[#0F172A]">ModelScope</span>
       </div>
 
       {/* Navigation */}
@@ -101,12 +101,12 @@ export default function Sidebar() {
               className={`group flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
                   ? 'bg-[#6366F1]/10 text-[#6366F1]'
-                  : 'text-[#9CA3AF] hover:bg-[#1F2937] hover:text-[#F9FAFB]'
+                  : 'text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]'
               }`}
             >
               <span
                 className={`transition-colors ${
-                  active ? 'text-[#6366F1]' : 'text-[#6B7280] group-hover:text-[#9CA3AF]'
+                  active ? 'text-[#6366F1]' : 'text-[#94A3B8] group-hover:text-[#475569]'
                 }`}
               >
                 {item.icon}
@@ -118,8 +118,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-[#1F2937] px-5 py-4">
-        <p className="text-xs text-[#6B7280]">ModelScope v0.1</p>
+      <div className="border-t border-[#E2E8F0] px-5 py-4">
+        <p className="text-xs text-[#94A3B8]">ModelScope v0.1</p>
       </div>
     </div>
   );
@@ -127,7 +127,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r border-[#1F2937] bg-[#0B0F19] lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[240px] border-r border-[#E2E8F0] bg-[#FFFFFF] lg:block">
         {sidebarContent}
       </aside>
 
@@ -141,14 +141,14 @@ export default function Sidebar() {
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[240px] transform border-r border-[#1F2937] bg-[#0B0F19] transition-transform duration-200 ease-in-out lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-[240px] transform border-r border-[#E2E8F0] bg-[#FFFFFF] transition-transform duration-200 ease-in-out lg:hidden ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Close button */}
         <button
           onClick={() => setMobileOpen(false)}
-          className="absolute right-3 top-5 rounded-[8px] p-1.5 text-[#6B7280] hover:bg-[#1F2937] hover:text-[#9CA3AF]"
+          className="absolute right-3 top-5 rounded-[8px] p-1.5 text-[#94A3B8] hover:bg-[#E2E8F0] hover:text-[#475569]"
           aria-label="Close sidebar"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

@@ -88,7 +88,7 @@ function formatReport(text: string): React.ReactNode[] {
       nodes.push(
         <h4
           key={i}
-          className="mt-4 mb-2 text-sm font-semibold text-[#F9FAFB]"
+          className="mt-4 mb-2 text-sm font-semibold text-[#0F172A]"
         >
           {line.replace(/^###\s*/, '').replace(/\*\*/g, '')}
         </h4>,
@@ -97,7 +97,7 @@ function formatReport(text: string): React.ReactNode[] {
       nodes.push(
         <h3
           key={i}
-          className="mt-5 mb-2 text-base font-bold text-[#F9FAFB]"
+          className="mt-5 mb-2 text-base font-bold text-[#0F172A]"
         >
           {line.replace(/^##\s*/, '').replace(/\*\*/g, '')}
         </h3>,
@@ -106,7 +106,7 @@ function formatReport(text: string): React.ReactNode[] {
       nodes.push(
         <h2
           key={i}
-          className="mt-5 mb-3 text-lg font-bold text-[#F9FAFB]"
+          className="mt-5 mb-3 text-lg font-bold text-[#0F172A]"
         >
           {line.replace(/^#\s*/, '').replace(/\*\*/g, '')}
         </h2>,
@@ -116,10 +116,10 @@ function formatReport(text: string): React.ReactNode[] {
       const content = line.replace(/^[-*]\s*/, '');
       const parts = content.split(/\*\*(.*?)\*\*/g);
       nodes.push(
-        <li key={i} className="ml-4 list-disc text-sm text-[#9CA3AF]">
+        <li key={i} className="ml-4 list-disc text-sm text-[#475569]">
           {parts.map((part, j) =>
             j % 2 === 1 ? (
-              <strong key={j} className="font-semibold text-[#F9FAFB]">
+              <strong key={j} className="font-semibold text-[#0F172A]">
                 {part}
               </strong>
             ) : (
@@ -130,7 +130,7 @@ function formatReport(text: string): React.ReactNode[] {
       );
     } else if (line.startsWith('---')) {
       nodes.push(
-        <hr key={i} className="my-4 border-[#1F2937]" />,
+        <hr key={i} className="my-4 border-[#E2E8F0]" />,
       );
     } else if (line.trim() === '') {
       nodes.push(<div key={i} className="h-2" />);
@@ -138,10 +138,10 @@ function formatReport(text: string): React.ReactNode[] {
       // Regular paragraph with bold handling
       const parts = line.split(/\*\*(.*?)\*\*/g);
       nodes.push(
-        <p key={i} className="text-sm leading-relaxed text-[#9CA3AF]">
+        <p key={i} className="text-sm leading-relaxed text-[#475569]">
           {parts.map((part, j) =>
             j % 2 === 1 ? (
-              <strong key={j} className="font-semibold text-[#F9FAFB]">
+              <strong key={j} className="font-semibold text-[#0F172A]">
                 {part}
               </strong>
             ) : (
@@ -205,9 +205,9 @@ export default function ReportGenerator({
   }
 
   return (
-    <div className="rounded-[16px] border border-[#1F2937] bg-[#111827] p-6">
+    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold tracking-wider text-[#9CA3AF] uppercase">
+        <h3 className="text-sm font-semibold tracking-wider text-[#475569] uppercase">
           AI Summary
         </h3>
 
@@ -215,12 +215,12 @@ export default function ReportGenerator({
           {report && (
             <button
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#1F2937] bg-[#0B0F19] px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:border-[#374151] hover:text-[#F9FAFB]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A]"
             >
               {copied ? (
                 <>
                   <svg
-                    className="h-3.5 w-3.5 text-emerald-400"
+                    className="h-3.5 w-3.5 text-emerald-600"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -297,7 +297,7 @@ export default function ReportGenerator({
       {/* Error state */}
       {error && (
         <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3">
-          <p className="text-sm text-red-400">{error}</p>
+          <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 
@@ -326,7 +326,7 @@ export default function ReportGenerator({
                 className="opacity-75"
               />
             </svg>
-            <p className="text-sm text-[#9CA3AF]">
+            <p className="text-sm text-[#475569]">
               Generating report via Cerebras inference...
             </p>
           </div>
@@ -335,7 +335,7 @@ export default function ReportGenerator({
 
       {/* Report output */}
       {report && (
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-5">
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-5">
           <ul className="list-none space-y-0">
             {formatReport(report)}
           </ul>
@@ -345,7 +345,7 @@ export default function ReportGenerator({
       {/* Empty state */}
       {!report && !loading && !error && (
         <div className="flex items-center justify-center py-10">
-          <p className="text-sm text-[#6B7280]">
+          <p className="text-sm text-[#94A3B8]">
             Click &ldquo;Generate AI Summary&rdquo; to create an executive
             report powered by Cerebras.
           </p>

@@ -11,7 +11,7 @@ interface MetricCardProps {
 const trendIcons: Record<string, React.ReactNode> = {
   up: (
     <svg
-      className="h-4 w-4 text-emerald-400"
+      className="h-4 w-4 text-emerald-600"
       viewBox="0 0 20 20"
       fill="currentColor"
     >
@@ -24,7 +24,7 @@ const trendIcons: Record<string, React.ReactNode> = {
   ),
   down: (
     <svg
-      className="h-4 w-4 text-red-400"
+      className="h-4 w-4 text-red-600"
       viewBox="0 0 20 20"
       fill="currentColor"
     >
@@ -37,7 +37,7 @@ const trendIcons: Record<string, React.ReactNode> = {
   ),
   neutral: (
     <svg
-      className="h-4 w-4 text-[#6B7280]"
+      className="h-4 w-4 text-[#94A3B8]"
       viewBox="0 0 20 20"
       fill="currentColor"
     >
@@ -58,21 +58,21 @@ export default function MetricCard({
   trend,
 }: MetricCardProps) {
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] px-5 py-4 transition-colors hover:border-[#374151]">
-      <p className="mb-1 text-xs font-medium tracking-wide text-[#9CA3AF] uppercase">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] px-5 py-4 transition-colors hover:border-[#CBD5E1]">
+      <p className="mb-1 text-xs font-medium tracking-wide text-[#475569] uppercase">
         {label}
       </p>
       <div className="flex items-baseline gap-1.5">
-        <span className="font-mono text-2xl font-semibold text-[#F9FAFB]">
+        <span className="font-mono text-2xl font-semibold text-[#0F172A]">
           {value}
         </span>
         {unit && (
-          <span className="text-sm font-medium text-[#6B7280]">{unit}</span>
+          <span className="text-sm font-medium text-[#94A3B8]">{unit}</span>
         )}
         {trend && <span className="ml-auto self-center">{trendIcons[trend]}</span>}
       </div>
       {subtitle && (
-        <p className="mt-1 text-xs text-[#6B7280]">{subtitle}</p>
+        <p className="mt-1 text-xs text-[#94A3B8]">{subtitle}</p>
       )}
     </div>
   );

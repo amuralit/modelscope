@@ -54,9 +54,9 @@ function GridBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {/* Radial gradient glow */}
-      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 h-[600px] w-[900px] rounded-full bg-accent/[0.07] blur-[120px]" />
+      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 h-[600px] w-[900px] rounded-full bg-accent/[0.12] blur-[120px]" />
       {/* Dot grid */}
-      <svg className="absolute inset-0 h-full w-full opacity-[0.04]">
+      <svg className="absolute inset-0 h-full w-full opacity-[0.08]">
         <defs>
           <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="currentColor" />

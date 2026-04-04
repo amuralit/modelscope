@@ -4,12 +4,12 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeProps['variant'], string> = {
-  success: 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/20',
-  warning: 'bg-amber-500/15 text-amber-400 ring-amber-500/20',
-  danger: 'bg-red-500/15 text-red-400 ring-red-500/20',
+  success: 'bg-emerald-500/15 text-emerald-600 ring-emerald-500/20',
+  warning: 'bg-amber-500/15 text-amber-600 ring-amber-500/20',
+  danger: 'bg-red-500/15 text-red-600 ring-red-500/20',
   info: 'bg-indigo-500/15 text-indigo-400 ring-indigo-500/20',
-  neutral: 'bg-[#1F2937] text-[#9CA3AF] ring-[#374151]',
-  muted: 'bg-[#1F2937]/50 text-[#6B7280] ring-[#1F2937]',
+  neutral: 'bg-[#E2E8F0] text-[#475569] ring-[#CBD5E1]',
+  muted: 'bg-[#E2E8F0]/50 text-[#94A3B8] ring-[#E2E8F0]',
 };
 
 export default function Badge({ text, variant }: BadgeProps) {

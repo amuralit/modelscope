@@ -12,16 +12,16 @@ interface ManualEntryProps {
 /* ------------------------------------------------------------------ */
 
 const INPUT_CLS = `
-  w-full rounded-lg border border-[#1F2937] bg-[#111827] px-3 py-2.5
-  text-sm text-[#F9FAFB] placeholder-[#6B7280]
+  w-full rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-3 py-2.5
+  text-sm text-[#0F172A] placeholder-[#94A3B8]
   outline-none transition-colors duration-150
   focus:border-[#6366F1]
 `;
 
-const LABEL_CLS = 'block mb-1.5 text-sm font-medium text-[#9CA3AF]';
+const LABEL_CLS = 'block mb-1.5 text-sm font-medium text-[#475569]';
 
 const SECTION_CLS = `
-  rounded-xl border border-[#1F2937] bg-[#0B0F19]/60 p-5
+  rounded-xl border border-[#E2E8F0] bg-[#F8FAFC]/60 p-5
 `;
 
 const ARCHITECTURES = ['Dense', 'MoE'] as const;
@@ -115,7 +115,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
     <div className="w-full space-y-6">
       {/* ---------- Identity ---------- */}
       <fieldset className={SECTION_CLS}>
-        <legend className="mb-4 text-base font-semibold text-[#F9FAFB]">
+        <legend className="mb-4 text-base font-semibold text-[#0F172A]">
           Model Identity
         </legend>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -142,7 +142,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
 
       {/* ---------- Parameters ---------- */}
       <fieldset className={SECTION_CLS}>
-        <legend className="mb-4 text-base font-semibold text-[#F9FAFB]">
+        <legend className="mb-4 text-base font-semibold text-[#0F172A]">
           Parameters
         </legend>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -175,7 +175,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
 
       {/* ---------- Architecture ---------- */}
       <fieldset className={SECTION_CLS}>
-        <legend className="mb-4 text-base font-semibold text-[#F9FAFB]">
+        <legend className="mb-4 text-base font-semibold text-[#0F172A]">
           Architecture
         </legend>
 
@@ -283,7 +283,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
 
       {/* ---------- Context & Precision ---------- */}
       <fieldset className={SECTION_CLS}>
-        <legend className="mb-4 text-base font-semibold text-[#F9FAFB]">
+        <legend className="mb-4 text-base font-semibold text-[#0F172A]">
           Context & Precision
         </legend>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -326,7 +326,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
 
       {/* ---------- Capabilities ---------- */}
       <fieldset className={SECTION_CLS}>
-        <legend className="mb-4 text-base font-semibold text-[#F9FAFB]">
+        <legend className="mb-4 text-base font-semibold text-[#0F172A]">
           Capabilities
         </legend>
         <div className="flex flex-wrap gap-x-8 gap-y-3">
@@ -338,7 +338,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
 
       {/* ---------- License ---------- */}
       <fieldset className={SECTION_CLS}>
-        <legend className="mb-4 text-base font-semibold text-[#F9FAFB]">
+        <legend className="mb-4 text-base font-semibold text-[#0F172A]">
           License
         </legend>
         <select
@@ -365,7 +365,7 @@ export default function ManualEntry({ onSubmit }: ManualEntryProps) {
         >
           Run X-ray on manual spec
         </button>
-        <p className="text-xs text-[#6B7280] leading-relaxed max-w-md">
+        <p className="text-xs text-[#94A3B8] leading-relaxed max-w-md">
           Use manual entry for models under NDA or pre-release models where
           HuggingFace configs are not yet public.
         </p>
@@ -388,14 +388,14 @@ function Checkbox({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-[#9CA3AF]">
+    <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-[#475569]">
       <span
         className={`
           flex h-5 w-5 items-center justify-center rounded
           border transition-colors duration-150
           ${checked
             ? 'border-[#6366F1] bg-[#6366F1]'
-            : 'border-[#1F2937] bg-[#111827]'
+            : 'border-[#E2E8F0] bg-[#FFFFFF]'
           }
         `}
       >

@@ -65,11 +65,11 @@ export default function URLInput({ onSubmit }: URLInputProps) {
             placeholder="Paste a HuggingFace model URL..."
             className={`
               w-full rounded-lg border px-4 py-3 text-sm
-              bg-[#111827] text-[#F9FAFB] placeholder-[#6B7280]
+              bg-[#FFFFFF] text-[#0F172A] placeholder-[#94A3B8]
               outline-none transition-colors duration-150
               ${error
                 ? 'border-[#EF4444] focus:border-[#EF4444]'
-                : 'border-[#1F2937] focus:border-[#6366F1]'
+                : 'border-[#E2E8F0] focus:border-[#6366F1]'
               }
             `}
           />
@@ -93,7 +93,7 @@ export default function URLInput({ onSubmit }: URLInputProps) {
       )}
 
       {/* Example links */}
-      <p className="mt-3 text-sm text-[#6B7280]">
+      <p className="mt-3 text-sm text-[#94A3B8]">
         Try:{' '}
         {EXAMPLES.map((example, i) => (
           <span key={example.label}>

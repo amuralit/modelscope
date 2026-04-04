@@ -19,7 +19,7 @@ export default function PDFExport({ contentRef, modelName }: PDFExportProps) {
 
     try {
       const canvas = await html2canvas(contentRef.current, {
-        backgroundColor: '#0B0F19',
+        backgroundColor: '#F8FAFC',
         scale: 2,
         useCORS: true,
         logging: false,
@@ -108,7 +108,7 @@ export default function PDFExport({ contentRef, modelName }: PDFExportProps) {
     <button
       onClick={handleExport}
       disabled={exporting}
-      className="inline-flex items-center gap-2 rounded-lg border border-[#1F2937] bg-[#111827] px-4 py-2 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#374151] hover:text-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-50"
+      className="inline-flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-50"
     >
       {exporting ? (
         <>

@@ -7,11 +7,11 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[#1F2937] bg-[#0B0F19]/80 px-4 backdrop-blur-md lg:hidden">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[#E2E8F0] bg-[#F8FAFC]/80 px-4 backdrop-blur-md lg:hidden">
       {/* Hamburger menu */}
       <button
         onClick={handleToggleSidebar}
-        className="rounded-[8px] p-2 text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-[#F9FAFB]"
+        className="rounded-[8px] p-2 text-[#475569] transition-colors hover:bg-[#E2E8F0] hover:text-[#0F172A]"
         aria-label="Open menu"
       >
         <svg
@@ -44,7 +44,7 @@ export default function Header() {
           <line x1="2" y1="16" x2="8" y2="16" stroke="currentColor" strokeWidth="1.5" />
           <line x1="24" y1="16" x2="30" y2="16" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-        <span className="text-base font-bold text-[#F9FAFB]">ModelScope</span>
+        <span className="text-base font-bold text-[#0F172A]">ModelScope</span>
       </div>
     </header>
   );

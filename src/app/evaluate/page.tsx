@@ -536,24 +536,24 @@ function EvaluatePageInner() {
   // -----------------------------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Page title */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#F9FAFB]">X-ray Model</h1>
-          <p className="mt-1 text-sm text-[#9CA3AF]">
+          <h1 className="text-2xl font-bold text-[#0F172A]">X-ray Model</h1>
+          <p className="mt-1 text-sm text-[#475569]">
             Evaluate any open-weight model for Cerebras inference compatibility.
           </p>
         </div>
 
         {/* ----- Tab Selector ----- */}
-        <div className="mb-6 flex gap-1 rounded-lg bg-[#111827] p-1 w-fit border border-[#1F2937]">
+        <div className="mb-6 flex gap-1 rounded-lg bg-[#FFFFFF] p-1 w-fit border border-[#E2E8F0]">
           <button
             onClick={() => setActiveTab('url')}
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === 'url'
                 ? 'bg-[#6366F1]/15 text-[#6366F1]'
-                : 'text-[#9CA3AF] hover:text-[#F9FAFB]'
+                : 'text-[#475569] hover:text-[#0F172A]'
             }`}
           >
             Paste HuggingFace URL
@@ -563,7 +563,7 @@ function EvaluatePageInner() {
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === 'manual'
                 ? 'bg-[#6366F1]/15 text-[#6366F1]'
-                : 'text-[#9CA3AF] hover:text-[#F9FAFB]'
+                : 'text-[#475569] hover:text-[#0F172A]'
             }`}
           >
             Manual Entry (pre-release / NDA)
@@ -584,7 +584,7 @@ function EvaluatePageInner() {
           <div className="mb-8 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-4">
             <div className="flex items-start gap-3">
               <svg
-                className="mt-0.5 h-5 w-5 shrink-0 text-red-400"
+                className="mt-0.5 h-5 w-5 shrink-0 text-red-600"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -594,7 +594,7 @@ function EvaluatePageInner() {
                   clipRule="evenodd"
                 />
               </svg>
-              <p className="text-sm text-red-400">{error}</p>
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           </div>
         )}
@@ -724,8 +724,8 @@ export default function EvaluatePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#0B0F19]">
-          <p className="text-sm text-[#6B7280]">Loading...</p>
+        <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
+          <p className="text-sm text-[#94A3B8]">Loading...</p>
         </div>
       }
     >
@@ -794,9 +794,9 @@ function ProgressPanel({
   isRunning: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-[#1F2937] bg-[#111827] p-6">
+    <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold tracking-wider text-[#9CA3AF] uppercase">
+        <h3 className="text-sm font-semibold tracking-wider text-[#475569] uppercase">
           Analysis Progress
         </h3>
         {isRunning && (
@@ -822,7 +822,7 @@ function ProgressPanel({
           </span>
         )}
         {!isRunning && (
-          <span className="text-xs text-emerald-400">Complete</span>
+          <span className="text-xs text-emerald-600">Complete</span>
         )}
       </div>
 
@@ -837,13 +837,13 @@ function ProgressPanel({
                   ? 'border-red-500/20 bg-red-500/5'
                   : mod.status === 'running'
                     ? 'border-[#6366F1]/30 bg-[#6366F1]/5'
-                    : 'border-[#1F2937] bg-[#0B0F19]'
+                    : 'border-[#E2E8F0] bg-[#F8FAFC]'
             }`}
           >
             {/* Status icon */}
             <div className="shrink-0">
               {mod.status === 'pending' && (
-                <div className="h-4 w-4 rounded-full border-2 border-[#374151]" />
+                <div className="h-4 w-4 rounded-full border-2 border-[#CBD5E1]" />
               )}
               {mod.status === 'running' && (
                 <svg className="h-4 w-4 animate-spin text-[#6366F1]" viewBox="0 0 24 24" fill="none">
@@ -852,12 +852,12 @@ function ProgressPanel({
                 </svg>
               )}
               {mod.status === 'completed' && (
-                <svg className="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-4 w-4 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
                 </svg>
               )}
               {mod.status === 'error' && (
-                <svg className="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-4 w-4 text-red-600" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
                 </svg>
               )}
@@ -865,9 +865,9 @@ function ProgressPanel({
 
             {/* Module info */}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-[#F9FAFB]">{mod.name}</p>
+              <p className="truncate text-sm font-medium text-[#0F172A]">{mod.name}</p>
               <div className="flex items-center gap-2">
-                <p className="text-xs text-[#6B7280]">
+                <p className="text-xs text-[#94A3B8]">
                   {mod.status === 'pending' && 'Waiting...'}
                   {mod.status === 'running' && 'Analyzing...'}
                   {mod.status === 'completed' && `${mod.elapsed}ms`}
@@ -910,11 +910,11 @@ function ModelIdentityCard({
   const license = licenseTag ? licenseTag.replace('license:', '') : undefined;
 
   return (
-    <div className="rounded-xl border border-[#1F2937] bg-[#111827] p-6">
+    <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-[#F9FAFB]">{name}</h2>
-          {org && <p className="mt-0.5 text-sm text-[#9CA3AF]">{org}</p>}
+          <h2 className="text-xl font-bold text-[#0F172A]">{name}</h2>
+          {org && <p className="mt-0.5 text-sm text-[#475569]">{org}</p>}
           <div className="mt-3 flex flex-wrap gap-2">
             {params && (
               <Badge text={formatParams(params)} variant="info" />
@@ -932,15 +932,15 @@ function ModelIdentityCard({
         </div>
         <div className="flex items-center gap-3">
           {modelInfo && (
-            <div className="flex gap-4 text-sm text-[#9CA3AF]">
+            <div className="flex gap-4 text-sm text-[#475569]">
               <span title="Downloads">
-                <span className="font-mono text-[#F9FAFB]">
+                <span className="font-mono text-[#0F172A]">
                   {(modelInfo.downloadsLastMonth ?? 0).toLocaleString()}
                 </span>{' '}
                 downloads/mo
               </span>
               <span title="Likes">
-                <span className="font-mono text-[#F9FAFB]">
+                <span className="font-mono text-[#0F172A]">
                   {(modelInfo.likes ?? 0).toLocaleString()}
                 </span>{' '}
                 likes
@@ -952,7 +952,7 @@ function ModelIdentityCard({
               href={`https://huggingface.co/${modelId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:border-[#374151] hover:text-[#F9FAFB]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 py-1.5 text-xs font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A]"
             >
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path
@@ -976,37 +976,37 @@ function ModelIdentityCard({
 
 function REAPGrid({ reap }: { reap: REAPResult }) {
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#F9FAFB]">REAP Compatibility</h3>
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
+      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">REAP Compatibility</h3>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Score</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Score</p>
           <p className={`font-mono text-2xl font-bold ${
-            reap.score >= 70 ? 'text-emerald-400' : reap.score >= 40 ? 'text-amber-400' : 'text-red-400'
+            reap.score >= 70 ? 'text-emerald-600' : reap.score >= 40 ? 'text-amber-600' : 'text-red-600'
           }`}>
             {reap.score}
           </p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Time to value</p>
-          <p className="text-sm font-semibold text-[#F9FAFB] capitalize">{reap.timeToValue}</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Time to value</p>
+          <p className="text-sm font-semibold text-[#0F172A] capitalize">{reap.timeToValue}</p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Adoption likelihood</p>
-          <p className="font-mono text-lg font-semibold text-[#F9FAFB]">{reap.adoptionLikelihood}%</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Adoption likelihood</p>
+          <p className="font-mono text-lg font-semibold text-[#0F172A]">{reap.adoptionLikelihood}%</p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Engagement</p>
-          <p className="font-mono text-lg font-semibold text-[#F9FAFB]">{reap.engagementPotential}%</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Engagement</p>
+          <p className="font-mono text-lg font-semibold text-[#0F172A]">{reap.engagementPotential}%</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wide">Opportunities</p>
+        <p className="text-xs font-medium text-[#475569] uppercase tracking-wide">Opportunities</p>
         <ul className="space-y-1">
           {reap.partnershipOpportunities.map((opp, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-[#9CA3AF]">
+            <li key={i} className="flex items-start gap-2 text-sm text-[#475569]">
               <span className="mt-0.5 text-[#6366F1]">-</span>
               {opp}
             </li>
@@ -1019,7 +1019,7 @@ function REAPGrid({ reap }: { reap: REAPResult }) {
           {reap.marketSegments.map((seg) => (
             <span
               key={seg}
-              className="rounded-md bg-[#1F2937] px-2 py-0.5 text-xs text-[#9CA3AF]"
+              className="rounded-md bg-[#E2E8F0] px-2 py-0.5 text-xs text-[#475569]"
             >
               {seg}
             </span>
@@ -1036,44 +1036,44 @@ function REAPGrid({ reap }: { reap: REAPResult }) {
 
 function CompetitorTable({ gap }: { gap: CompetitiveGapResult }) {
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#F9FAFB]">Competitive Landscape</h3>
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
+      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">Competitive Landscape</h3>
 
       <div className="mb-4 grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3 text-center">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Gap size</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-center">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Gap size</p>
           <p className={`text-sm font-bold capitalize ${
             gap.marketGapSize === 'large'
-              ? 'text-emerald-400'
+              ? 'text-emerald-600'
               : gap.marketGapSize === 'medium'
-                ? 'text-amber-400'
+                ? 'text-amber-600'
                 : gap.marketGapSize === 'small'
-                  ? 'text-red-400'
-                  : 'text-[#6B7280]'
+                  ? 'text-red-600'
+                  : 'text-[#94A3B8]'
           }`}>
             {gap.marketGapSize}
           </p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3 text-center">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Risk</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-center">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Risk</p>
           <p className={`text-sm font-bold capitalize ${
             gap.riskOfNotOffering === 'high'
-              ? 'text-red-400'
+              ? 'text-red-600'
               : gap.riskOfNotOffering === 'medium'
-                ? 'text-amber-400'
-                : 'text-emerald-400'
+                ? 'text-amber-600'
+                : 'text-emerald-600'
           }`}>
             {gap.riskOfNotOffering}
           </p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-3 text-center">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Urgency</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-center">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Urgency</p>
           <p className={`text-sm font-bold capitalize ${
             gap.timelinePressure === 'urgent'
-              ? 'text-red-400'
+              ? 'text-red-600'
               : gap.timelinePressure === 'moderate'
-                ? 'text-amber-400'
-                : 'text-emerald-400'
+                ? 'text-amber-600'
+                : 'text-emerald-600'
           }`}>
             {gap.timelinePressure}
           </p>
@@ -1083,14 +1083,14 @@ function CompetitorTable({ gap }: { gap: CompetitiveGapResult }) {
       {/* Competitors serving this model */}
       {gap.competitorsOffering.length > 0 ? (
         <div className="mb-4">
-          <p className="mb-2 text-xs font-medium text-[#9CA3AF] uppercase tracking-wide">
+          <p className="mb-2 text-xs font-medium text-[#475569] uppercase tracking-wide">
             Providers serving this model
           </p>
           <div className="flex flex-wrap gap-2">
             {gap.competitorsOffering.map((provider) => (
               <span
                 key={provider}
-                className="inline-flex items-center rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-500/20 capitalize"
+                className="inline-flex items-center rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-600 ring-1 ring-inset ring-red-500/20 capitalize"
               >
                 {provider}
               </span>
@@ -1099,7 +1099,7 @@ function CompetitorTable({ gap }: { gap: CompetitiveGapResult }) {
         </div>
       ) : (
         <div className="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
-          <p className="text-sm text-emerald-400">
+          <p className="text-sm text-emerald-600">
             No competitors currently serve this model -- first-mover opportunity.
           </p>
         </div>
@@ -1107,10 +1107,10 @@ function CompetitorTable({ gap }: { gap: CompetitiveGapResult }) {
 
       {/* Differentiators */}
       <div className="space-y-2">
-        <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wide">Differentiators</p>
+        <p className="text-xs font-medium text-[#475569] uppercase tracking-wide">Differentiators</p>
         <ul className="space-y-1">
           {gap.differentiators.map((diff, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-[#9CA3AF]">
+            <li key={i} className="flex items-start gap-2 text-sm text-[#475569]">
               <span className="mt-0.5 text-[#6366F1]">-</span>
               {diff}
             </li>
@@ -1128,10 +1128,10 @@ function CompetitorTable({ gap }: { gap: CompetitiveGapResult }) {
 function DemandTimeline({ demand }: { demand: DemandSignalResult }) {
   const trendColor =
     demand.downloadsTrend === 'rising'
-      ? 'text-emerald-400'
+      ? 'text-emerald-600'
       : demand.downloadsTrend === 'declining'
-        ? 'text-red-400'
-        : 'text-amber-400';
+        ? 'text-red-600'
+        : 'text-amber-600';
 
   const trendIcon =
     demand.downloadsTrend === 'rising'
@@ -1141,42 +1141,42 @@ function DemandTimeline({ demand }: { demand: DemandSignalResult }) {
         : '\u2192';
 
   return (
-    <div className="rounded-xl border border-[#1F2937] bg-[#111827] p-6">
-      <h3 className="mb-4 text-sm font-semibold tracking-wider text-[#9CA3AF] uppercase">
+    <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6">
+      <h3 className="mb-4 text-sm font-semibold tracking-wider text-[#475569] uppercase">
         Demand Signal
       </h3>
 
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Score</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Score</p>
           <p className={`font-mono text-2xl font-bold ${
-            demand.score >= 70 ? 'text-emerald-400' : demand.score >= 40 ? 'text-amber-400' : 'text-red-400'
+            demand.score >= 70 ? 'text-emerald-600' : demand.score >= 40 ? 'text-amber-600' : 'text-red-600'
           }`}>
             {demand.score}
           </p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Downloads (30d)</p>
-          <p className="font-mono text-xl font-semibold text-[#F9FAFB]">
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Downloads (30d)</p>
+          <p className="font-mono text-xl font-semibold text-[#0F172A]">
             {demand.downloadsLastMonth.toLocaleString()}
           </p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Trend</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Trend</p>
           <p className={`text-lg font-bold capitalize ${trendColor}`}>
             {trendIcon} {demand.downloadsTrend}
           </p>
         </div>
-        <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
-          <p className="text-xs text-[#6B7280] uppercase tracking-wide">Community interest</p>
-          <p className="font-mono text-xl font-semibold text-[#F9FAFB]">{demand.communityInterest}</p>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Community interest</p>
+          <p className="font-mono text-xl font-semibold text-[#0F172A]">{demand.communityInterest}</p>
         </div>
       </div>
 
       {/* Segments */}
       {demand.topRequestingSegments.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-medium text-[#9CA3AF] uppercase tracking-wide">
+          <p className="mb-2 text-xs font-medium text-[#475569] uppercase tracking-wide">
             Top requesting segments
           </p>
           <div className="flex flex-wrap gap-2">
@@ -1249,12 +1249,12 @@ function PDFExport({
   };
 
   return (
-    <div className="rounded-[16px] border border-[#1F2937] bg-[#111827] p-6">
-      <h3 className="mb-4 text-sm font-semibold tracking-wider text-[#9CA3AF] uppercase">
+    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-6">
+      <h3 className="mb-4 text-sm font-semibold tracking-wider text-[#475569] uppercase">
         Export Report
       </h3>
 
-      <p className="mb-4 text-sm text-[#6B7280]">
+      <p className="mb-4 text-sm text-[#94A3B8]">
         Download a plaintext summary of the X-ray analysis results.
       </p>
 
@@ -1271,11 +1271,11 @@ function PDFExport({
         </button>
         <button
           onClick={handleCopy}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#1F2937] px-4 py-2 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#374151] hover:text-[#F9FAFB]"
+          className="inline-flex items-center gap-2 rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A]"
         >
           {copied ? (
             <>
-              <svg className="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-4 w-4 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
               </svg>
               Copied!
@@ -1293,8 +1293,8 @@ function PDFExport({
       </div>
 
       {/* Preview */}
-      <div className="mt-4 max-h-48 overflow-auto rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
-        <pre className="whitespace-pre-wrap font-mono text-xs text-[#9CA3AF]">{textSummary}</pre>
+      <div className="mt-4 max-h-48 overflow-auto rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+        <pre className="whitespace-pre-wrap font-mono text-xs text-[#475569]">{textSummary}</pre>
       </div>
     </div>
   );

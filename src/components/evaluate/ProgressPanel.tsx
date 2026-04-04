@@ -69,7 +69,7 @@ function ErrorIcon() {
 function PendingIcon() {
   return (
     <div className="h-5 w-5 flex items-center justify-center">
-      <div className="h-2 w-2 rounded-full bg-[#6B7280]" />
+      <div className="h-2 w-2 rounded-full bg-[#94A3B8]" />
     </div>
   );
 }
@@ -87,7 +87,7 @@ function statusBorder(status: ModuleStatus['status']): string {
     case 'error':
       return 'border-[#EF4444]/30';
     default:
-      return 'border-[#1F2937]';
+      return 'border-[#E2E8F0]';
   }
 }
 
@@ -128,7 +128,7 @@ function ModuleCard({ module }: { module: ModuleStatus }) {
     <div
       className={`
         flex flex-col items-center gap-2.5 rounded-xl border
-        bg-[#111827] px-4 py-4 min-w-[140px] flex-1
+        bg-[#FFFFFF] px-4 py-4 min-w-[140px] flex-1
         transition-all duration-500 ease-out
         ${statusBorder(status)}
         ${statusGlow(status)}
@@ -144,7 +144,7 @@ function ModuleCard({ module }: { module: ModuleStatus }) {
         className={`
           text-center text-xs font-medium leading-tight
           transition-colors duration-300
-          ${status === 'pending' ? 'text-[#6B7280]' : 'text-[#F9FAFB]'}
+          ${status === 'pending' ? 'text-[#94A3B8]' : 'text-[#0F172A]'}
         `}
       >
         {name}
@@ -159,7 +159,7 @@ function ModuleCard({ module }: { module: ModuleStatus }) {
 
       {/* Running indicator bar */}
       {status === 'running' && (
-        <div className="h-0.5 w-full overflow-hidden rounded-full bg-[#1F2937]">
+        <div className="h-0.5 w-full overflow-hidden rounded-full bg-[#E2E8F0]">
           <div className="h-full w-1/3 animate-[shimmer_1.4s_ease-in-out_infinite] rounded-full bg-[#6366F1]" />
         </div>
       )}
@@ -183,19 +183,19 @@ export default function ProgressPanel({ modules }: ProgressPanelProps) {
   const total = modules.length;
 
   return (
-    <div className="w-full rounded-xl border border-[#1F2937] bg-[#111827] p-6">
+    <div className="w-full rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6">
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#F9FAFB]">
+        <h3 className="text-sm font-semibold text-[#0F172A]">
           Analysis Progress
         </h3>
-        <span className="text-xs tabular-nums text-[#9CA3AF]">
+        <span className="text-xs tabular-nums text-[#475569]">
           {completedCount} / {total} modules
         </span>
       </div>
 
       {/* Overall progress bar */}
-      <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-[#1F2937]">
+      <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-[#E2E8F0]">
         <div
           className="h-full rounded-full bg-[#6366F1] transition-all duration-700 ease-out"
           style={{ width: `${total > 0 ? (completedCount / total) * 100 : 0}%` }}

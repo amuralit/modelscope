@@ -76,8 +76,8 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
   );
 
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#F9FAFB]">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
+      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">
         Speed Sensitivity
       </h3>
 
@@ -106,7 +106,7 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
           <path
             d={gaugeMetrics.bgPath}
             fill="none"
-            stroke="#1F2937"
+            stroke="#E2E8F0"
             strokeWidth={18}
             strokeLinecap="round"
           />
@@ -140,7 +140,7 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
             cx={gaugeMetrics.cx}
             cy={gaugeMetrics.cy}
             r={3}
-            fill="#111827"
+            fill="#FFFFFF"
           />
 
           {/* Score text */}
@@ -148,7 +148,7 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
             x={gaugeMetrics.cx}
             y={gaugeMetrics.cy + 30}
             textAnchor="middle"
-            fill="#F9FAFB"
+            fill="#0F172A"
             fontSize={28}
             fontWeight="700"
             fontFamily="monospace"
@@ -159,17 +159,17 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
             x={gaugeMetrics.cx}
             y={gaugeMetrics.cy + 45}
             textAnchor="middle"
-            fill="#6B7280"
+            fill="#94A3B8"
             fontSize={10}
           >
             / 100
           </text>
 
           {/* Min / Max labels */}
-          <text x={30} y={gaugeMetrics.cy + 8} fill="#6B7280" fontSize={10}>
+          <text x={30} y={gaugeMetrics.cy + 8} fill="#94A3B8" fontSize={10}>
             0
           </text>
-          <text x={262} y={gaugeMetrics.cy + 8} fill="#6B7280" fontSize={10}>
+          <text x={262} y={gaugeMetrics.cy + 8} fill="#94A3B8" fontSize={10}>
             100
           </text>
         </svg>
@@ -183,22 +183,22 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
       </div>
 
       {/* Chain multiplication diagram */}
-      <div className="rounded-lg border border-[#1F2937] bg-[#0B0F19] p-4">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+      <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#475569]">
           Chain latency comparison
         </p>
 
         {/* Chain formula */}
         <div className="mb-4 flex items-center justify-center gap-2 text-sm">
-          <span className="rounded bg-[#1F2937] px-2 py-0.5 font-mono text-[#F9FAFB]">
+          <span className="rounded bg-[#E2E8F0] px-2 py-0.5 font-mono text-[#0F172A]">
             {chain_steps} steps
           </span>
-          <span className="text-[#6B7280]">&times;</span>
-          <span className="rounded bg-[#1F2937] px-2 py-0.5 font-mono text-[#F9FAFB]">
+          <span className="text-[#94A3B8]">&times;</span>
+          <span className="rounded bg-[#E2E8F0] px-2 py-0.5 font-mono text-[#0F172A]">
             inference
           </span>
-          <span className="text-[#6B7280]">=</span>
-          <span className="rounded bg-[#1F2937] px-2 py-0.5 font-mono text-[#F9FAFB]">
+          <span className="text-[#94A3B8]">=</span>
+          <span className="rounded bg-[#E2E8F0] px-2 py-0.5 font-mono text-[#0F172A]">
             total
           </span>
         </div>
@@ -206,14 +206,14 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
         {/* GPU vs Cerebras bars */}
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <span className="w-20 text-right text-xs text-[#9CA3AF]">GPU</span>
+            <span className="w-20 text-right text-xs text-[#475569]">GPU</span>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <div
                   className="h-6 rounded bg-red-500/60"
                   style={{ width: `${gpuBarW}%`, maxWidth: '100%' }}
                 />
-                <span className="whitespace-nowrap font-mono text-xs text-[#F9FAFB]">
+                <span className="whitespace-nowrap font-mono text-xs text-[#0F172A]">
                   {formatTime(gpu_time_seconds)}
                 </span>
               </div>
@@ -221,7 +221,7 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="w-20 text-right text-xs text-[#9CA3AF]">
+            <span className="w-20 text-right text-xs text-[#475569]">
               Cerebras
             </span>
             <div className="flex-1">
@@ -233,7 +233,7 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
                     maxWidth: '100%',
                   }}
                 />
-                <span className="whitespace-nowrap font-mono text-xs text-[#F9FAFB]">
+                <span className="whitespace-nowrap font-mono text-xs text-[#0F172A]">
                   {formatTime(cerebras_time_seconds)}
                 </span>
               </div>
@@ -243,11 +243,11 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
 
         {/* Speedup callout */}
         <div className="mt-3 flex items-center justify-center gap-2">
-          <span className="text-xs text-[#9CA3AF]">Speedup:</span>
-          <span className="font-mono text-lg font-bold text-emerald-400">
+          <span className="text-xs text-[#475569]">Speedup:</span>
+          <span className="font-mono text-lg font-bold text-emerald-600">
             {speedup_factor.toFixed(1)}x
           </span>
-          <span className="text-xs text-[#6B7280]">faster on Cerebras</span>
+          <span className="text-xs text-[#94A3B8]">faster on Cerebras</span>
         </div>
       </div>
     </div>

@@ -67,12 +67,12 @@ function writeWeights(w: ScoringWeights): void {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-lg font-semibold text-[#F9FAFB]">{children}</h2>
+    <h2 className="text-lg font-semibold text-[#0F172A]">{children}</h2>
   );
 }
 
 function SectionDescription({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1 text-sm text-[#6B7280]">{children}</p>;
+  return <p className="mt-1 text-sm text-[#94A3B8]">{children}</p>;
 }
 
 // ---------------------------------------------------------------------------
@@ -91,14 +91,14 @@ function ConnectionTestRow({
   onTest: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-[#1F2937] bg-[#111827] px-5 py-4 transition-colors hover:border-[#374151]">
+    <div className="flex items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-5 py-4 transition-colors hover:border-[#CBD5E1]">
       <div>
-        <p className="text-sm font-medium text-[#F9FAFB]">{label}</p>
-        <p className="text-xs text-[#6B7280]">{description}</p>
+        <p className="text-sm font-medium text-[#0F172A]">{label}</p>
+        <p className="text-xs text-[#94A3B8]">{description}</p>
       </div>
       <div className="flex items-center gap-3">
         {status === 'success' && (
-          <span className="flex items-center gap-1.5 text-xs text-emerald-400">
+          <span className="flex items-center gap-1.5 text-xs text-emerald-600">
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6L9 17l-5-5" />
             </svg>
@@ -106,7 +106,7 @@ function ConnectionTestRow({
           </span>
         )}
         {status === 'error' && (
-          <span className="flex items-center gap-1.5 text-xs text-red-400">
+          <span className="flex items-center gap-1.5 text-xs text-red-600">
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
@@ -119,7 +119,7 @@ function ConnectionTestRow({
           type="button"
           onClick={onTest}
           disabled={status === 'testing'}
-          className="shrink-0 rounded-lg border border-[#1F2937] px-4 py-2 text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#6366F1] hover:text-[#6366F1] disabled:opacity-40 disabled:pointer-events-none"
+          className="shrink-0 rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:border-[#6366F1] hover:text-[#6366F1] disabled:opacity-40 disabled:pointer-events-none"
         >
           {status === 'testing' ? (
             <span className="flex items-center gap-1.5">
@@ -156,8 +156,8 @@ function WeightSlider({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-[#9CA3AF]">{label}</span>
-        <span className="rounded bg-[#111827] px-2 py-0.5 font-mono text-xs text-[#6366F1]">
+        <span className="text-sm font-medium text-[#475569]">{label}</span>
+        <span className="rounded bg-[#FFFFFF] px-2 py-0.5 font-mono text-xs text-[#6366F1]">
           {pct}%
         </span>
       </div>
@@ -252,8 +252,8 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-8 lg:py-14">
-      <h1 className="text-3xl font-bold tracking-tight text-[#F9FAFB]">Settings</h1>
-      <p className="mt-2 text-sm text-[#6B7280]">
+      <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">Settings</h1>
+      <p className="mt-2 text-sm text-[#94A3B8]">
         API keys are stored securely as Vercel environment variables — they never reach your browser.
       </p>
 
@@ -279,14 +279,14 @@ export default function SettingsPage() {
           />
         </div>
 
-        <div className="mt-4 rounded-lg border border-[#1F2937] bg-[#111827]/50 px-4 py-3">
-          <p className="text-xs text-[#6B7280]">
+        <div className="mt-4 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF]/50 px-4 py-3">
+          <p className="text-xs text-[#94A3B8]">
             To update API keys, go to your Vercel project → Settings → Environment Variables, then redeploy.
           </p>
         </div>
       </section>
 
-      <hr className="my-10 border-[#1F2937]" />
+      <hr className="my-10 border-[#E2E8F0]" />
 
       {/* Scoring Weights Section */}
       <section>
@@ -301,8 +301,8 @@ export default function SettingsPage() {
             <span
               className={`rounded-full px-2.5 py-1 font-mono text-xs ${
                 sumPct === 100
-                  ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'bg-red-500/10 text-red-400'
+                  ? 'bg-emerald-500/10 text-emerald-600'
+                  : 'bg-red-500/10 text-red-600'
               }`}
             >
               {sumPct}%
@@ -311,7 +311,7 @@ export default function SettingsPage() {
               type="button"
               onClick={handleResetWeights}
               disabled={isDefault}
-              className="rounded-lg border border-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#6B7280] transition-colors hover:border-[#6366F1] hover:text-[#6366F1] disabled:opacity-30 disabled:pointer-events-none"
+              className="rounded-lg border border-[#E2E8F0] px-3 py-1.5 text-xs font-medium text-[#94A3B8] transition-colors hover:border-[#6366F1] hover:text-[#6366F1] disabled:opacity-30 disabled:pointer-events-none"
             >
               Reset to defaults
             </button>

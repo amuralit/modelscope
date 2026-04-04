@@ -76,9 +76,9 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
   };
 
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#F9FAFB]">Architecture Diagram</h3>
+        <h3 className="text-sm font-semibold text-[#0F172A]">Architecture Diagram</h3>
         <div className="flex items-center gap-3">
           <span
             className="inline-flex items-center gap-1.5 text-xs font-medium"
@@ -100,24 +100,24 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
       </div>
 
       {/* Dimension labels */}
-      <div className="mb-3 flex flex-wrap gap-3 text-xs text-[#9CA3AF]">
+      <div className="mb-3 flex flex-wrap gap-3 text-xs text-[#475569]">
         <span>
-          Layers: <span className="font-mono text-[#F9FAFB]">{num_layers}</span>
+          Layers: <span className="font-mono text-[#0F172A]">{num_layers}</span>
         </span>
         <span>
-          Hidden: <span className="font-mono text-[#F9FAFB]">{hidden_size}</span>
+          Hidden: <span className="font-mono text-[#0F172A]">{hidden_size}</span>
         </span>
         <span>
-          Heads: <span className="font-mono text-[#F9FAFB]">{num_attention_heads}</span>
+          Heads: <span className="font-mono text-[#0F172A]">{num_attention_heads}</span>
           {num_kv_heads !== num_attention_heads && (
-            <> (KV: <span className="font-mono text-[#F9FAFB]">{num_kv_heads}</span>)</>
+            <> (KV: <span className="font-mono text-[#0F172A]">{num_kv_heads}</span>)</>
           )}
         </span>
         <span>
-          Head dim: <span className="font-mono text-[#F9FAFB]">{head_dim}</span>
+          Head dim: <span className="font-mono text-[#0F172A]">{head_dim}</span>
         </span>
         <span>
-          FFN: <span className="font-mono text-[#F9FAFB]">{intermediate_size}</span>
+          FFN: <span className="font-mono text-[#0F172A]">{intermediate_size}</span>
         </span>
       </div>
 
@@ -135,15 +135,15 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
             width={blockW}
             height={28}
             rx={6}
-            fill="#1F2937"
-            stroke="#374151"
+            fill="#E2E8F0"
+            stroke="#CBD5E1"
             strokeWidth={1}
           />
           <text
             x={leftPad + blockW / 2}
             y={28}
             textAnchor="middle"
-            fill="#9CA3AF"
+            fill="#475569"
             fontSize={11}
             fontFamily="monospace"
           >
@@ -156,7 +156,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
             y1={38}
             x2={leftPad + blockW / 2}
             y2={topPad}
-            stroke="#374151"
+            stroke="#CBD5E1"
             strokeWidth={1}
             strokeDasharray="4 2"
           />
@@ -171,7 +171,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                     x={leftPad + blockW / 2}
                     y={yOffset + layerH / 2 + 4}
                     textAnchor="middle"
-                    fill="#6B7280"
+                    fill="#94A3B8"
                     fontSize={16}
                     fontWeight="bold"
                   >
@@ -181,7 +181,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                     x={leftPad + blockW / 2}
                     y={yOffset + layerH / 2 + 20}
                     textAnchor="middle"
-                    fill="#6B7280"
+                    fill="#94A3B8"
                     fontSize={10}
                   >
                     {num_layers - 7} more layers
@@ -207,7 +207,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                   x={leftPad - 10}
                   y={yOffset + layerH / 2 + 4}
                   textAnchor="end"
-                  fill="#6B7280"
+                  fill="#94A3B8"
                   fontSize={10}
                   fontFamily="monospace"
                 >
@@ -221,8 +221,8 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                   width={blockW}
                   height={layerH}
                   rx={8}
-                  fill="#0B0F19"
-                  stroke="#1F2937"
+                  fill="#F8FAFC"
+                  stroke="#E2E8F0"
                   strokeWidth={1}
                 />
 
@@ -339,7 +339,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                             <text
                               x={leftPad + attnW + gap + mlpW - 14}
                               y={yOffset + layerH - 6}
-                              fill="#9CA3AF"
+                              fill="#475569"
                               fontSize={8}
                             >
                               +{numExp - maxShown}
@@ -365,7 +365,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                       x={leftPad + attnW + gap + (mlpW - 4) / 2}
                       y={yOffset + 40}
                       textAnchor="middle"
-                      fill="#9CA3AF"
+                      fill="#475569"
                       fontSize={9}
                       fontFamily="monospace"
                     >
@@ -381,7 +381,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                     y1={yOffset + layerH}
                     x2={leftPad + blockW / 2}
                     y2={yOffset + layerH + layerGap}
-                    stroke="#374151"
+                    stroke="#CBD5E1"
                     strokeWidth={1}
                     strokeDasharray="4 2"
                   />
@@ -400,7 +400,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                   y1={lastY - layerGap}
                   x2={leftPad + blockW / 2}
                   y2={lastY + 2}
-                  stroke="#374151"
+                  stroke="#CBD5E1"
                   strokeWidth={1}
                   strokeDasharray="4 2"
                 />
@@ -410,15 +410,15 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                   width={blockW}
                   height={28}
                   rx={6}
-                  fill="#1F2937"
-                  stroke="#374151"
+                  fill="#E2E8F0"
+                  stroke="#CBD5E1"
                   strokeWidth={1}
                 />
                 <text
                   x={leftPad + blockW / 2}
                   y={lastY + 20}
                   textAnchor="middle"
-                  fill="#9CA3AF"
+                  fill="#475569"
                   fontSize={11}
                   fontFamily="monospace"
                 >
@@ -437,15 +437,15 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                 width={260}
                 height={60}
                 rx={8}
-                fill="#1F2937"
-                stroke="#374151"
+                fill="#E2E8F0"
+                stroke="#CBD5E1"
                 strokeWidth={1}
               />
               <text
                 x={tooltip.x}
                 y={tooltip.y - 50}
                 textAnchor="middle"
-                fill="#F9FAFB"
+                fill="#0F172A"
                 fontSize={11}
                 fontWeight="600"
               >
@@ -455,7 +455,7 @@ export default function ArchitectureDiagram({ archResult }: ArchitectureDiagramP
                 x={tooltip.x}
                 y={tooltip.y - 34}
                 textAnchor="middle"
-                fill="#9CA3AF"
+                fill="#475569"
                 fontSize={10}
               >
                 {attention_type} ({num_attention_heads}h / {num_kv_heads}kv) | dim {head_dim}

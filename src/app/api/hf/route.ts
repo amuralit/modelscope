@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
         const params = new URLSearchParams({
           sort: "trending",
           direction: "-1",
-          filter: "text-generation",
+          pipeline_tag: "text-generation",
           limit: "50",
         });
         const res = await fetch(`${HF_API}/models?${params.toString()}`, {

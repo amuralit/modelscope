@@ -65,8 +65,8 @@ export default function AgenticRadar({ agenticResult }: AgenticRadarProps) {
   ];
 
   return (
-    <div className="rounded-[12px] border border-[#1F2937] bg-[#111827] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#F9FAFB]">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
+      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">
         Agentic Fit Radar
       </h3>
 
@@ -74,28 +74,28 @@ export default function AgenticRadar({ agenticResult }: AgenticRadarProps) {
       <div className="mx-auto h-72 w-full max-w-md">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="75%" data={chartData}>
-            <PolarGrid stroke="#1F2937" />
+            <PolarGrid stroke="#E2E8F0" />
             <PolarAngleAxis
               dataKey="axis"
-              tick={{ fill: '#9CA3AF', fontSize: 11 }}
+              tick={{ fill: '#475569', fontSize: 11 }}
             />
             <PolarRadiusAxis
               angle={90}
               domain={[0, 100]}
-              tick={{ fill: '#6B7280', fontSize: 9 }}
+              tick={{ fill: '#94A3B8', fontSize: 9 }}
               axisLine={false}
               tickCount={5}
             />
             <RTooltip
               contentStyle={{
-                backgroundColor: '#1F2937',
-                border: '1px solid #374151',
+                backgroundColor: '#E2E8F0',
+                border: '1px solid #CBD5E1',
                 borderRadius: 8,
                 fontSize: 12,
-                color: '#F9FAFB',
+                color: '#0F172A',
               }}
               formatter={(value) => [`${value}`, 'Score']}
-              labelStyle={{ color: '#9CA3AF' }}
+              labelStyle={{ color: '#475569' }}
             />
             <Radar
               name="Agentic Score"
@@ -107,13 +107,13 @@ export default function AgenticRadar({ agenticResult }: AgenticRadarProps) {
               dot={{
                 r: 4,
                 fill: '#6366F1',
-                stroke: '#111827',
+                stroke: '#FFFFFF',
                 strokeWidth: 2,
               }}
               activeDot={{
                 r: 6,
                 fill: '#818CF8',
-                stroke: '#111827',
+                stroke: '#FFFFFF',
                 strokeWidth: 2,
               }}
             />
@@ -122,8 +122,8 @@ export default function AgenticRadar({ agenticResult }: AgenticRadarProps) {
       </div>
 
       {/* Feature support badges */}
-      <div className="mt-4 border-t border-[#1F2937] pt-4">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+      <div className="mt-4 border-t border-[#E2E8F0] pt-4">
+        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#475569]">
           Feature Support
         </p>
         <div className="flex flex-wrap gap-2">
@@ -132,8 +132,8 @@ export default function AgenticRadar({ agenticResult }: AgenticRadarProps) {
               key={feat.label}
               className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
                 feat.supported
-                  ? 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/20'
-                  : 'bg-red-500/10 text-red-400/70 ring-red-500/15'
+                  ? 'bg-emerald-500/15 text-emerald-600 ring-emerald-500/20'
+                  : 'bg-red-500/10 text-red-600/70 ring-red-500/15'
               }`}
             >
               <span className="text-sm">{feat.supported ? '\u2713' : '\u2717'}</span>

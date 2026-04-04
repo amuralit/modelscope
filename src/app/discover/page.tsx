@@ -120,9 +120,9 @@ function formatParams(params: number | null): string {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 70) return 'text-emerald-400';
-  if (score >= 40) return 'text-amber-400';
-  return 'text-red-400';
+  if (score >= 70) return 'text-emerald-600';
+  if (score >= 40) return 'text-amber-600';
+  return 'text-red-600';
 }
 
 // ---------------------------------------------------------------------------
@@ -231,12 +231,12 @@ export default function DiscoverPage() {
   // -----------------------------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#F9FAFB]">Discover</h1>
-          <p className="mt-1 text-sm text-[#9CA3AF]">
+          <h1 className="text-2xl font-bold text-[#0F172A]">Discover</h1>
+          <p className="mt-1 text-sm text-[#475569]">
             Trending HuggingFace models not yet on Cerebras -- your next onboarding
             opportunities.
           </p>
@@ -247,7 +247,7 @@ export default function DiscoverPage() {
           <div className="mb-8 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-4">
             <div className="flex items-start gap-3">
               <svg
-                className="mt-0.5 h-5 w-5 shrink-0 text-red-400"
+                className="mt-0.5 h-5 w-5 shrink-0 text-red-600"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -258,7 +258,7 @@ export default function DiscoverPage() {
                 />
               </svg>
               <div>
-                <p className="text-sm text-red-400">{error}</p>
+                <p className="text-sm text-red-600">{error}</p>
                 {error.includes('Settings') && (
                   <button
                     onClick={() => router.push('/settings')}
@@ -297,7 +297,7 @@ export default function DiscoverPage() {
                   className="opacity-75"
                 />
               </svg>
-              <p className="text-sm text-[#9CA3AF]">
+              <p className="text-sm text-[#475569]">
                 Fetching trending models from HuggingFace...
               </p>
             </div>
@@ -309,46 +309,46 @@ export default function DiscoverPage() {
           <>
             {/* Summary stats */}
             <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <div className="rounded-xl border border-[#1F2937] bg-[#111827] px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#475569]">
                   Trending models
                 </p>
-                <p className="font-mono text-2xl font-semibold text-[#F9FAFB]">
+                <p className="font-mono text-2xl font-semibold text-[#0F172A]">
                   {models.length}
                 </p>
               </div>
-              <div className="rounded-xl border border-[#1F2937] bg-[#111827] px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#475569]">
                   Gap models
                 </p>
-                <p className="font-mono text-2xl font-semibold text-emerald-400">
+                <p className="font-mono text-2xl font-semibold text-emerald-600">
                   {gapModels.length}
                 </p>
-                <p className="text-xs text-[#6B7280]">Not on Cerebras</p>
+                <p className="text-xs text-[#94A3B8]">Not on Cerebras</p>
               </div>
-              <div className="rounded-xl border border-[#1F2937] bg-[#111827] px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#475569]">
                   On Cerebras
                 </p>
                 <p className="font-mono text-2xl font-semibold text-[#6366F1]">
                   {filteredModels.length - gapModels.length}
                 </p>
               </div>
-              <div className="rounded-xl border border-[#1F2937] bg-[#111827] px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#475569]">
                   Cerebras catalog
                 </p>
-                <p className="font-mono text-2xl font-semibold text-[#F9FAFB]">
+                <p className="font-mono text-2xl font-semibold text-[#0F172A]">
                   {CEREBRAS_MODELS.length}
                 </p>
               </div>
             </div>
 
             {/* Filter controls */}
-            <div className="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-[#1F2937] bg-[#111827] p-4">
+            <div className="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-4">
               {/* Min params slider */}
               <div className="flex-1 min-w-[200px]">
-                <label className="mb-1.5 block text-xs font-medium text-[#9CA3AF]">
+                <label className="mb-1.5 block text-xs font-medium text-[#475569]">
                   Min parameters: {minParams > 0 ? `${minParams}B+` : 'Any'}
                 </label>
                 <input
@@ -358,9 +358,9 @@ export default function DiscoverPage() {
                   step={1}
                   value={minParams}
                   onChange={(e) => setMinParams(Number(e.target.value))}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-[#1F2937] accent-[#6366F1]"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-[#E2E8F0] accent-[#6366F1]"
                 />
-                <div className="mt-1 flex justify-between text-xs text-[#6B7280]">
+                <div className="mt-1 flex justify-between text-xs text-[#94A3B8]">
                   <span>Any</span>
                   <span>50B</span>
                   <span>100B</span>
@@ -370,10 +370,10 @@ export default function DiscoverPage() {
 
               {/* Architecture filter */}
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-[#9CA3AF]">
+                <label className="mb-1.5 block text-xs font-medium text-[#475569]">
                   Architecture
                 </label>
-                <div className="flex gap-1 rounded-lg bg-[#0B0F19] p-1">
+                <div className="flex gap-1 rounded-lg bg-[#F8FAFC] p-1">
                   {(['All', 'Dense', 'MoE'] as ArchFilter[]).map((f) => (
                     <button
                       key={f}
@@ -381,7 +381,7 @@ export default function DiscoverPage() {
                       className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                         archFilter === f
                           ? 'bg-[#6366F1]/15 text-[#6366F1]'
-                          : 'text-[#9CA3AF] hover:text-[#F9FAFB]'
+                          : 'text-[#475569] hover:text-[#0F172A]'
                       }`}
                     >
                       {f}
@@ -392,7 +392,7 @@ export default function DiscoverPage() {
 
               {/* Sort */}
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-[#9CA3AF]">
+                <label className="mb-1.5 block text-xs font-medium text-[#475569]">
                   Sort by
                 </label>
                 <select
@@ -400,7 +400,7 @@ export default function DiscoverPage() {
                   onChange={(e) =>
                     setSortBy(e.target.value as typeof sortBy)
                   }
-                  className="rounded-lg border border-[#1F2937] bg-[#0B0F19] px-3 py-1.5 text-sm text-[#F9FAFB] outline-none focus:border-[#6366F1]"
+                  className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-sm text-[#0F172A] outline-none focus:border-[#6366F1]"
                 >
                   <option value="quickScore">Quick Score</option>
                   <option value="downloads">Downloads (30d)</option>
@@ -410,35 +410,35 @@ export default function DiscoverPage() {
             </div>
 
             {/* Table */}
-            <div className="overflow-hidden rounded-xl border border-[#1F2937]">
+            <div className="overflow-hidden rounded-xl border border-[#E2E8F0]">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#1F2937] bg-[#111827]">
-                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                    <tr className="border-b border-[#E2E8F0] bg-[#FFFFFF]">
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Model
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Lab
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Params
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Downloads (30d)
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Likes
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-[#475569]">
                         On Cerebras?
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Quick Score
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1F2937]">
+                  <tbody className="divide-y divide-[#E2E8F0]">
                     {filteredModels.map((model) => {
                       const modelId = model.modelId ?? model.id;
                       const name = modelId.split('/').pop() ?? modelId;
@@ -448,11 +448,11 @@ export default function DiscoverPage() {
                         <tr
                           key={modelId}
                           onClick={() => handleRowClick(modelId)}
-                          className="cursor-pointer bg-[#0B0F19] transition-colors hover:bg-[#111827]"
+                          className="cursor-pointer bg-[#F8FAFC] transition-colors hover:bg-[#FFFFFF]"
                         >
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-[#F9FAFB]">
+                              <span className="text-sm font-medium text-[#0F172A]">
                                 {name}
                               </span>
                               {isMoE && (
@@ -461,28 +461,28 @@ export default function DiscoverPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-[#9CA3AF]">
+                            <span className="text-sm text-[#475569]">
                               {model.lab}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <span className="font-mono text-sm text-[#F9FAFB]">
+                            <span className="font-mono text-sm text-[#0F172A]">
                               {formatParams(model.estimatedParams)}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <span className="font-mono text-sm text-[#F9FAFB]">
+                            <span className="font-mono text-sm text-[#0F172A]">
                               {(model.downloadsLastMonth ?? 0).toLocaleString()}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <span className="font-mono text-sm text-[#F9FAFB]">
+                            <span className="font-mono text-sm text-[#0F172A]">
                               {(model.likes ?? 0).toLocaleString()}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-center">
                             {model.onCerebras ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-600 ring-1 ring-inset ring-emerald-500/20">
                                 <svg
                                   className="h-3 w-3"
                                   viewBox="0 0 20 20"
@@ -497,7 +497,7 @@ export default function DiscoverPage() {
                                 Yes
                               </span>
                             ) : (
-                              <span className="inline-flex items-center rounded-full bg-[#1F2937] px-2.5 py-0.5 text-xs font-medium text-[#6B7280] ring-1 ring-inset ring-[#374151]">
+                              <span className="inline-flex items-center rounded-full bg-[#E2E8F0] px-2.5 py-0.5 text-xs font-medium text-[#94A3B8] ring-1 ring-inset ring-[#CBD5E1]">
                                 No
                               </span>
                             )}
@@ -518,8 +518,8 @@ export default function DiscoverPage() {
 
               {/* Empty state */}
               {filteredModels.length === 0 && (
-                <div className="flex items-center justify-center py-16 bg-[#0B0F19]">
-                  <p className="text-sm text-[#6B7280]">
+                <div className="flex items-center justify-center py-16 bg-[#F8FAFC]">
+                  <p className="text-sm text-[#94A3B8]">
                     No models match the current filters.
                   </p>
                 </div>
@@ -527,7 +527,7 @@ export default function DiscoverPage() {
             </div>
 
             {/* Table footer */}
-            <p className="mt-3 text-xs text-[#6B7280]">
+            <p className="mt-3 text-xs text-[#94A3B8]">
               Showing {filteredModels.length} of {models.length} trending models.
               Click any row to run a full X-ray analysis.
             </p>
