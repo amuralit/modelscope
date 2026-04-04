@@ -53,8 +53,9 @@ function normalizeConfig(raw: Record<string, any>): Record<string, any> {
     const fields = [
       "num_hidden_layers", "num_attention_heads", "num_key_value_heads",
       "hidden_size", "intermediate_size", "moe_intermediate_size", "vocab_size", "max_position_embeddings",
-      "num_local_experts", "num_experts_per_tok", "num_experts", "num_experts_per_tok",
-      "head_dim", "rope_theta", "sliding_window",
+      "num_local_experts", "num_experts_per_tok", "num_experts", "n_routed_experts",
+      "head_dim", "rope_theta", "sliding_window", "tie_word_embeddings",
+      "first_k_dense_replace", "n_shared_experts",
     ];
     for (const f of fields) {
       if (config[f] === undefined && nested[f] !== undefined) {
@@ -67,9 +68,9 @@ function normalizeConfig(raw: Record<string, any>): Record<string, any> {
     }
   }
 
-  // Normalize num_experts → num_local_experts (Qwen/Gemma style)
-  if (config.num_local_experts === undefined && config.num_experts !== undefined) {
-    config.num_local_experts = config.num_experts;
+  // Normalize expert count field variants → num_local_experts
+  if (config.num_local_experts === undefined) {
+    config.num_local_experts = config.num_experts ?? config.n_routed_experts;
   }
 
   // Some configs use head_dim but not hidden_size/num_attention_heads correctly

@@ -16,6 +16,10 @@ export interface ModelConfig {
   num_experts?: number;
   num_experts_per_tok?: number;
   moe_intermediate_size?: number;
+  n_routed_experts?: number;
+  first_k_dense_replace?: number;
+  n_shared_experts?: number;
+  tie_word_embeddings?: boolean;
   rope_theta?: number;
   torch_dtype?: string;
   architectures?: string[];
