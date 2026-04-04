@@ -17,23 +17,27 @@ export default function URLInput({ onSubmit }: URLInputProps) {
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const validate = useCallback((value: string): string | null => {
-    if (!value.trim()) return 'Please enter a HuggingFace model URL.';
-    const modelId = parseModelIdFromUrl(value.trim());
-    if (!modelId) return 'Invalid URL. Expected format: https://huggingface.co/{org}/{model}';
+  const extractModelId = useCallback((value: string): string | null => {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    // Try as full URL first
+    const fromUrl = parseModelIdFromUrl(trimmed);
+    if (fromUrl) return fromUrl;
+    // Try as plain org/model ID (e.g. "google/gemma-3-27b-it")
+    const idPattern = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
+    if (idPattern.test(trimmed)) return trimmed;
     return null;
   }, []);
 
   const handleSubmit = useCallback(() => {
-    const validationError = validate(url);
-    if (validationError) {
-      setError(validationError);
+    const modelId = extractModelId(url);
+    if (!modelId) {
+      setError('Enter a HuggingFace URL or model ID (e.g. google/gemma-3-27b-it)');
       return;
     }
     setError(null);
-    const modelId = parseModelIdFromUrl(url.trim());
-    if (modelId) onSubmit(modelId);
-  }, [url, validate, onSubmit]);
+    onSubmit(modelId);
+  }, [url, extractModelId, onSubmit]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -62,7 +66,7 @@ export default function URLInput({ onSubmit }: URLInputProps) {
             value={url}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder="Paste a HuggingFace model URL..."
+            placeholder="Paste a HuggingFace URL or model ID (e.g. google/gemma-3-27b-it)"
             className={`
               w-full rounded-lg border px-4 py-3 text-sm
               bg-[#FFFFFF] text-[#0F172A] placeholder-[#94A3B8]
