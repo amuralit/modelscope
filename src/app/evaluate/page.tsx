@@ -13,6 +13,8 @@ import WSEFitChart from '@/components/xray/WSEFitChart';
 import SpeedGauge from '@/components/xray/SpeedGauge';
 import AgenticRadar from '@/components/xray/AgenticRadar';
 import ReportGenerator from '@/components/report/ReportGenerator';
+import PerformanceCost from '@/components/xray/PerformanceCost';
+import BenchmarkScores from '@/components/xray/BenchmarkScores';
 import Badge from '@/components/shared/Badge';
 
 // --- API ---
@@ -37,7 +39,7 @@ import { runDemandSignal } from '@/lib/modules/demandSignal';
 
 // --- Scoring ---
 import { calculateCompositeScore } from '@/lib/scoring/composite';
-import { getVerdict } from '@/lib/scoring/verdict';
+import { getVerdict, type VerdictResult } from '@/lib/scoring/verdict';
 
 // --- Types ---
 import type {
@@ -91,6 +93,7 @@ interface PageState {
   modelId: string | null;
   modelInfo: ModelInfo | null;
   modelConfig: ModelConfig | null;
+  modelCard: string;
   isRunning: boolean;
   error: string | null;
 }
@@ -99,6 +102,7 @@ type PageAction =
   | { type: 'START_ANALYSIS'; modelId: string }
   | { type: 'SET_MODEL_INFO'; modelInfo: ModelInfo }
   | { type: 'SET_MODEL_CONFIG'; config: ModelConfig }
+  | { type: 'SET_MODEL_CARD'; modelCard: string }
   | { type: 'UPDATE_MODULE'; index: number; status: ModuleStatusState; elapsed?: number; error?: string }
   | { type: 'SET_RESULT'; key: keyof AnalysisResults; result: any }
   | { type: 'SET_COMPOSITE'; score: CompositeScore }
@@ -128,6 +132,7 @@ const INITIAL_STATE: PageState = {
   modelId: null,
   modelInfo: null,
   modelConfig: null,
+  modelCard: '',
   isRunning: false,
   error: null,
 };
@@ -145,6 +150,8 @@ function reducer(state: PageState, action: PageAction): PageState {
       return { ...state, modelInfo: action.modelInfo };
     case 'SET_MODEL_CONFIG':
       return { ...state, modelConfig: action.config };
+    case 'SET_MODEL_CARD':
+      return { ...state, modelCard: action.modelCard };
     case 'UPDATE_MODULE': {
       const modules = [...state.modules];
       modules[action.index] = {
@@ -269,7 +276,10 @@ function EvaluatePageInner() {
         }
 
         if (tokRes.status === 'fulfilled') tokenizerConfig = tokRes.value;
-        if (cardRes.status === 'fulfilled') modelCard = cardRes.value;
+        if (cardRes.status === 'fulfilled') {
+          modelCard = cardRes.value;
+          dispatch({ type: 'SET_MODEL_CARD', modelCard });
+        }
       } catch (err) {
         dispatch({
           type: 'SET_ERROR',
@@ -491,7 +501,7 @@ function EvaluatePageInner() {
   }, [searchParams, runAnalysis]);
 
   // ----- Derived data for dashboard -----
-  const { results, compositeScore, modelId, modelInfo, modelConfig, modules, isRunning, error } = state;
+  const { results, compositeScore, modelId, modelInfo, modelConfig, modelCard: storedModelCard, modules, isRunning, error } = state;
 
   const verdictInfo = useMemo(() => {
     if (!compositeScore) return null;
@@ -616,6 +626,8 @@ function EvaluatePageInner() {
               modelInfo={modelInfo}
               modelConfig={modelConfig}
               archResult={results.architecture}
+              compositeScore={compositeScore}
+              verdictInfo={verdictInfo}
             />
 
             {/* Row 2: ScoreCard + ScoreBreakdown */}
@@ -647,6 +659,28 @@ function EvaluatePageInner() {
                 />
               )}
             </div>
+
+            {/* Row 3b: Performance & Cost Estimates (full width) */}
+            {results.architecture && (
+              <PerformanceCost
+                parameterCount={results.architecture.parameterCount}
+                activeParameters={results.architecture.activeParameters}
+                isMoE={results.architecture.isMoE}
+                contextWindow={results.architecture.contextWindow}
+                estimatedDecodeTps={estimateTpsFromParams(results.architecture.parameterCount)}
+                numLayers={results.architecture.numLayers}
+                numKVHeads={results.architecture.numKVHeads}
+                headDim={results.architecture.headDim}
+              />
+            )}
+
+            {/* Row 3c: Benchmark Scores (full width) */}
+            {storedModelCard && (
+              <BenchmarkScores
+                modelCard={storedModelCard}
+                modelType={results.architecture?.modelType ?? ''}
+              />
+            )}
 
             {/* Row 4: Speed Gauge + Agentic Radar */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -885,79 +919,170 @@ function ModelIdentityCard({
   modelInfo,
   modelConfig,
   archResult,
+  compositeScore,
+  verdictInfo,
 }: {
   modelId: string | null;
   modelInfo: ModelInfo | null;
   modelConfig: ModelConfig | null;
   archResult: ArchitectureScanResult | null;
+  compositeScore: CompositeScore;
+  verdictInfo: VerdictResult;
 }) {
   if (!modelId) return null;
 
   const name = modelId.split('/').pop() ?? modelId;
   const org = modelId.includes('/') ? modelId.split('/')[0] : undefined;
+  const isManual = modelId.startsWith('manual/');
   const params = archResult?.parameterCount;
+  const activeParams = archResult?.activeParameters;
   const archFamily = archResult?.architectureFamily ?? 'Unknown';
   const isMoE = archResult?.isMoE ?? false;
+  const layers = archResult?.numLayers;
+  const contextWindow = archResult?.contextWindow;
+  const attentionVariant = archResult?.attentionVariant;
 
-  // Try to extract license from model info tags
-  const licenseTag = modelInfo?.tags?.find((t) => t.startsWith('license:'));
+  // Extract license from model info tags
+  const licenseTag = modelInfo?.tags?.find((t: string) => t.startsWith('license:'));
   const license = licenseTag ? licenseTag.replace('license:', '') : undefined;
+
+  // Format context window (e.g. 131072 -> "128K")
+  const formatContext = (ctx: number) => {
+    if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(ctx % 1_000_000 === 0 ? 0 : 1)}M`;
+    if (ctx >= 1024) return `${Math.round(ctx / 1024)}K`;
+    return ctx.toLocaleString();
+  };
+
+  // Verdict color mapping
+  const verdictColor =
+    compositeScore.verdict === 'GO'
+      ? { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-600', ring: 'ring-emerald-500/20', dot: 'bg-emerald-500' }
+      : compositeScore.verdict === 'EVALUATE'
+        ? { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-600', ring: 'ring-amber-500/20', dot: 'bg-amber-500' }
+        : { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-600', ring: 'ring-red-500/20', dot: 'bg-red-500' };
 
   return (
     <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-[#0F172A]">{name}</h2>
-          {org && <p className="mt-0.5 text-sm text-[#475569]">{org}</p>}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_auto_auto]">
+        {/* ---- Left Section: Model Identity ---- */}
+        <div className="min-w-0">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate text-2xl font-bold tracking-tight text-[#0F172A]">{name}</h2>
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                {org && (
+                  <span className="text-sm text-[#475569]">{org}</span>
+                )}
+                {!isManual && (
+                  <a
+                    href={`https://huggingface.co/${modelId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[#475569] transition-colors hover:text-[#0F172A]"
+                  >
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5zm7.5-3.25a.75.75 0 01.75-.75h4.5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V4.06l-6.22 6.22a.75.75 0 11-1.06-1.06l6.22-6.22H12.5a.75.75 0 01-.75-.75z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    HuggingFace
+                  </a>
+                )}
+                {modelInfo && (
+                  <>
+                    <span className="text-[#CBD5E1]" aria-hidden="true">&middot;</span>
+                    <span className="text-xs text-[#94A3B8]">
+                      <span className="font-mono text-[#475569]">{(modelInfo.downloadsLastMonth ?? 0).toLocaleString()}</span> downloads/mo
+                    </span>
+                    <span className="text-[#CBD5E1]" aria-hidden="true">&middot;</span>
+                    <span className="text-xs text-[#94A3B8]">
+                      <span className="font-mono text-[#475569]">{(modelInfo.likes ?? 0).toLocaleString()}</span> likes
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Architecture badges */}
           <div className="mt-3 flex flex-wrap gap-2">
-            {params && (
-              <Badge text={formatParams(params)} variant="info" />
-            )}
+            <Badge text={`${archFamily}Family`} variant="neutral" />
             <Badge
               text={isMoE ? 'MoE' : 'Dense'}
               variant={isMoE ? 'warning' : 'success'}
             />
-            <Badge text={archFamily} variant="neutral" />
-            {archResult?.attentionVariant && (
-              <Badge text={archResult.attentionVariant} variant="neutral" />
+            {attentionVariant && (
+              <Badge text={attentionVariant} variant="neutral" />
             )}
             {license && <Badge text={license} variant="muted" />}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {modelInfo && (
-            <div className="flex gap-4 text-sm text-[#475569]">
-              <span title="Downloads">
-                <span className="font-mono text-[#0F172A]">
-                  {(modelInfo.downloadsLastMonth ?? 0).toLocaleString()}
-                </span>{' '}
-                downloads/mo
+
+        {/* ---- Center Section: Key Metrics ---- */}
+        <div className="flex items-center">
+          <div className="flex gap-px">
+            {/* Parameters */}
+            <div className="flex flex-col items-center rounded-l-lg border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Parameters</span>
+              <span className="mt-1 font-mono text-xl font-bold text-[#0F172A]">
+                {params ? formatParams(params) : '--'}
               </span>
-              <span title="Likes">
-                <span className="font-mono text-[#0F172A]">
-                  {(modelInfo.likes ?? 0).toLocaleString()}
-                </span>{' '}
-                likes
+              {isMoE && activeParams ? (
+                <span className="mt-0.5 text-[10px] text-[#94A3B8]">
+                  <span className="font-mono text-[#475569]">{formatParams(activeParams)}</span> active
+                </span>
+              ) : (
+                <span className="mt-0.5 text-[10px] text-[#94A3B8]">total</span>
+              )}
+            </div>
+
+            {/* Context Window */}
+            <div className="flex flex-col items-center border-y border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Context</span>
+              <span className="mt-1 font-mono text-xl font-bold text-[#0F172A]">
+                {contextWindow ? formatContext(contextWindow) : '--'}
+              </span>
+              <span className="mt-0.5 text-[10px] text-[#94A3B8]">tokens</span>
+            </div>
+
+            {/* Layers */}
+            <div className="flex flex-col items-center border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Layers</span>
+              <span className="mt-1 font-mono text-xl font-bold text-[#0F172A]">
+                {layers ?? '--'}
+              </span>
+              <span className="mt-0.5 text-[10px] text-[#94A3B8]">depth</span>
+            </div>
+
+            {/* Composite Score */}
+            <div className="flex flex-col items-center rounded-r-lg border border-l-0 border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Score</span>
+              <span className={`mt-1 font-mono text-xl font-bold ${verdictColor.text}`}>
+                {compositeScore.score}
+              </span>
+              <span className="mt-0.5 text-[10px] text-[#94A3B8]">/ 100</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ---- Right Section: Verdict ---- */}
+        <div className="flex items-center">
+          <div className={`flex flex-col items-center rounded-xl border ${verdictColor.border} ${verdictColor.bg} px-7 py-4`}>
+            <div className="flex items-center gap-2">
+              <span className={`h-2.5 w-2.5 rounded-full ${verdictColor.dot}`} />
+              <span className={`text-2xl font-extrabold tracking-tight ${verdictColor.text}`}>
+                {compositeScore.verdict}
               </span>
             </div>
-          )}
-          {!modelId.startsWith('manual/') && (
-            <a
-              href={`https://huggingface.co/${modelId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 py-1.5 text-xs font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A]"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5zm7.5-3.25a.75.75 0 01.75-.75h4.5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0V4.06l-6.22 6.22a.75.75 0 11-1.06-1.06l6.22-6.22H12.5a.75.75 0 01-.75-.75z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              HuggingFace
-            </a>
-          )}
+            <span className={`mt-1 font-mono text-sm font-semibold ${verdictColor.text}`}>
+              {compositeScore.score}/100
+            </span>
+            <span className="mt-1.5 max-w-[160px] text-center text-[11px] leading-tight text-[#475569]">
+              {verdictInfo.label}
+            </span>
+          </div>
         </div>
       </div>
     </div>
