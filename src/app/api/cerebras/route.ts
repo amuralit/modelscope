@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
           content,
-          model: data.model ?? MODEL,
+          model: data.model ?? model,
           timing: {
             queue_time_ms: (timeInfo.queue_time ?? 0) * 1000,
             prompt_time_ms: (timeInfo.prompt_time ?? 0) * 1000,
