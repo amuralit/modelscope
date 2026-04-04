@@ -8,9 +8,9 @@ interface URLInputProps {
 }
 
 const EXAMPLES = [
+  { label: 'google/gemma-3-27b-it', url: 'https://huggingface.co/google/gemma-3-27b-it' },
   { label: 'Qwen/Qwen3-30B-A3B', url: 'https://huggingface.co/Qwen/Qwen3-30B-A3B' },
   { label: 'deepseek-ai/DeepSeek-V3-0324', url: 'https://huggingface.co/deepseek-ai/DeepSeek-V3-0324' },
-  { label: 'mistralai/Mistral-Small-24B-Instruct-2501', url: 'https://huggingface.co/mistralai/Mistral-Small-24B-Instruct-2501' },
 ];
 
 export default function URLInput({ onSubmit }: URLInputProps) {

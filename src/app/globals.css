@@ -71,3 +71,9 @@ body {
 .animate-fade-in {
   animation: fade-in 0.4s ease-out;
 }
+
+/* Shimmer animation for skeleton loading */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

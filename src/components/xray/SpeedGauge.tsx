@@ -31,49 +31,36 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
     score,
   } = speedResult;
 
-  // Gauge parameters
-  const size = 280;
-  const cx = size / 2;
-  const cy = 130;
-  const r = 95;
-  const strokeW = 14;
-
-  // Semicircle from 180° to 0° (left to right, over the top)
-  // In SVG, angles go clockwise from the positive X axis
-  // We want: left end at 180°, right end at 0°
-  const totalArc = Math.PI; // semicircle
   const clampedScore = Math.max(0, Math.min(100, score));
   const scoreRatio = clampedScore / 100;
 
-  // Arc endpoints using standard polar coords (SVG Y is inverted)
-  const startX = cx + r * Math.cos(Math.PI); // left
-  const startY = cy - r * Math.sin(Math.PI); // baseline
-  const endX = cx + r * Math.cos(0); // right
-  const endY = cy - r * Math.sin(0); // baseline
+  // SVG semicircle gauge using stroke-dasharray on a circle
+  // Circle parameters
+  const size = 240;
+  const strokeWidth = 14;
+  const radius = (size - strokeWidth) / 2; // 113
+  const circumference = 2 * Math.PI * radius;
+  const halfCircumference = circumference / 2;
 
-  // Score arc endpoint: interpolate angle from PI to 0
-  const scoreAngle = Math.PI * (1 - scoreRatio);
-  const scoreX = cx + r * Math.cos(scoreAngle);
-  const scoreY = cy - r * Math.sin(scoreAngle);
+  // The circle is rotated so the stroke starts at the left of the semicircle
+  // and goes clockwise to the right (bottom half is clipped by the container).
+  // dasharray: halfCircumference (visible arc) then full circumference (gap for the rest)
+  const bgDasharray = `${halfCircumference} ${circumference}`;
 
-  // Background arc path (full semicircle)
-  // From left to right going over the top = sweep clockwise in SVG
-  const bgArc = `M ${startX} ${startY} A ${r} ${r} 0 0 1 ${endX} ${endY}`;
+  // Fill arc — portion of the semicircle corresponding to the score
+  const fillLength = halfCircumference * scoreRatio;
+  const fillDasharray = `${fillLength} ${circumference}`;
 
-  // Score fill arc (partial, from left toward score position)
-  const fillLargeArc = scoreRatio > 0.5 ? 1 : 0;
-  const fillArc =
-    scoreRatio > 0.01
-      ? `M ${startX} ${startY} A ${r} ${r} 0 ${fillLargeArc} 1 ${scoreX} ${scoreY}`
-      : '';
-
-  // Needle endpoint (slightly shorter than radius)
-  const needleR = r - 20;
-  const needleX = cx + needleR * Math.cos(scoreAngle);
-  const needleY = cy - needleR * Math.sin(scoreAngle);
+  // Marker position: angle from left (PI) to right (0), going over the top
+  const markerAngle = Math.PI * (1 - scoreRatio);
+  const cx = size / 2;
+  const cy = size / 2;
+  const markerX = cx + radius * Math.cos(markerAngle);
+  const markerY = cy - radius * Math.sin(markerAngle);
 
   // Score color
-  const scoreColor = score >= 60 ? '#059669' : score >= 30 ? '#D97706' : '#DC2626';
+  const scoreColor =
+    clampedScore >= 60 ? '#059669' : clampedScore >= 30 ? '#D97706' : '#DC2626';
 
   // Bar widths for comparison
   const gpuBarPct = 90;
@@ -89,92 +76,127 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
       </h3>
 
       {/* Gauge */}
-      <div className="flex justify-center">
-        <svg
-          width={size}
-          height={200}
-          viewBox={`0 0 ${size} 200`}
+      <div className="flex flex-col items-center">
+        {/* Semicircle container: clip bottom half */}
+        <div
+          style={{
+            width: size,
+            height: size / 2,
+            overflow: 'hidden',
+            position: 'relative',
+          }}
         >
-          <defs>
-            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#DC2626" />
-              <stop offset="40%" stopColor="#F59E0B" />
-              <stop offset="70%" stopColor="#10B981" />
-              <stop offset="100%" stopColor="#059669" />
-            </linearGradient>
-          </defs>
-
-          {/* Background arc (gray) */}
-          <path
-            d={bgArc}
-            fill="none"
-            stroke="#E2E8F0"
-            strokeWidth={strokeW}
-            strokeLinecap="round"
-          />
-
-          {/* Score fill arc (colored gradient) */}
-          {fillArc && (
-            <path
-              d={fillArc}
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            style={{ display: 'block' }}
+          >
+            {/* Background arc (gray) */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius}
               fill="none"
-              stroke="url(#gauge-gradient)"
-              strokeWidth={strokeW}
+              stroke="#E2E8F0"
+              strokeWidth={strokeWidth}
               strokeLinecap="round"
+              strokeDasharray={bgDasharray}
+              transform={`rotate(180 ${cx} ${cy})`}
             />
-          )}
 
-          {/* Needle */}
-          <line
-            x1={cx}
-            y1={cy}
-            x2={needleX}
-            y2={needleY}
-            stroke={scoreColor}
-            strokeWidth={2.5}
-            strokeLinecap="round"
-          />
-          {/* Needle hub */}
-          <circle cx={cx} cy={cy} r={6} fill={scoreColor} />
-          <circle cx={cx} cy={cy} r={3} fill="white" />
+            {/* Colored zone underlay: red, amber, green segments */}
+            {/* Red zone: 0-30% */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill="none"
+              stroke="#FEE2E2"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${halfCircumference * 0.3} ${circumference}`}
+              transform={`rotate(180 ${cx} ${cy})`}
+            />
+            {/* Amber zone: 30-60% */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill="none"
+              stroke="#FEF3C7"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${halfCircumference * 0.3} ${circumference}`}
+              strokeDashoffset={`${-halfCircumference * 0.3}`}
+              transform={`rotate(180 ${cx} ${cy})`}
+            />
+            {/* Green zone: 60-100% */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill="none"
+              stroke="#D1FAE5"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${halfCircumference * 0.4} ${circumference}`}
+              strokeDashoffset={`${-halfCircumference * 0.6}`}
+              transform={`rotate(180 ${cx} ${cy})`}
+            />
 
-          {/* Needle tip dot */}
-          <circle cx={scoreX} cy={scoreY} r={4} fill={scoreColor} stroke="white" strokeWidth={1.5} />
+            {/* Score fill arc (solid color based on score) */}
+            {scoreRatio > 0.01 && (
+              <circle
+                cx={cx}
+                cy={cy}
+                r={radius}
+                fill="none"
+                stroke={scoreColor}
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                strokeDasharray={fillDasharray}
+                transform={`rotate(180 ${cx} ${cy})`}
+                style={{
+                  transition: 'stroke-dasharray 0.6s ease-out',
+                }}
+              />
+            )}
 
-          {/* Score number */}
-          <text
-            x={cx}
-            y={cy + 35}
-            textAnchor="middle"
-            fill="#0F172A"
-            fontSize={36}
-            fontWeight="700"
-            fontFamily="var(--font-mono), monospace"
+            {/* Score position marker dot */}
+            {scoreRatio > 0.01 && (
+              <circle
+                cx={markerX}
+                cy={markerY}
+                r={7}
+                fill={scoreColor}
+                stroke="white"
+                strokeWidth={2.5}
+              />
+            )}
+          </svg>
+        </div>
+
+        {/* Score number centered below gauge */}
+        <div className="-mt-4 flex flex-col items-center">
+          <span
+            className="font-mono text-4xl font-bold"
+            style={{ color: scoreColor }}
           >
             {clampedScore}
-          </text>
-          <text
-            x={cx}
-            y={cy + 52}
-            textAnchor="middle"
-            fill="#94A3B8"
-            fontSize={11}
-          >
-            / 100
-          </text>
+          </span>
+          <span className="text-xs text-[#94A3B8]">/ 100</span>
+        </div>
 
-          {/* Min / Max labels */}
-          <text x={startX + 5} y={cy + 18} textAnchor="middle" fill="#94A3B8" fontSize={11} fontWeight="500">
-            0
-          </text>
-          <text x={endX - 5} y={cy + 18} textAnchor="middle" fill="#94A3B8" fontSize={11} fontWeight="500">
-            100
-          </text>
-        </svg>
+        {/* Min / Max labels */}
+        <div
+          className="flex justify-between text-xs font-medium text-[#94A3B8]"
+          style={{ width: size - strokeWidth, marginTop: -8 }}
+        >
+          <span>0</span>
+          <span>100</span>
+        </div>
       </div>
 
       {/* Use case badge */}
-      <div className="mb-5 flex justify-center -mt-2">
+      <div className="mb-5 mt-2 flex justify-center">
         <span className="rounded-full bg-[#6366F1]/10 px-3 py-1 text-xs font-medium text-[#6366F1] ring-1 ring-inset ring-[#6366F1]/20">
           {use_case.replace(/_/g, ' ')}
         </span>
