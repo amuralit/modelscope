@@ -210,6 +210,7 @@ function EvaluatePageInner() {
   const [activeTab, setActiveTab] = useState<'url' | 'manual'>('url');
   const autoStartedRef = useRef(false);
   const [gatedInfo, setGatedInfo] = useState<{ modelId: string; modelUrl: string } | null>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
 
   // ----- Run module with timing -----
   const runModule = useCallback(
@@ -731,13 +732,14 @@ function EvaluatePageInner() {
 
             {/* Row 7: Report Generator + Export */}
             <div className="space-y-6">
-              <ReportGenerator analysisData={analysisData} modelName={modelId ?? 'Unknown'} />
+              <ReportGenerator analysisData={analysisData} modelName={modelId ?? 'Unknown'} onReportReady={setAiSummary} />
               <div className="flex items-center gap-3 justify-end">
                 <PDFExportButton
                   modelName={modelId ?? 'Unknown'}
                   compositeScore={compositeScore}
                   verdictInfo={verdictInfo}
                   analysisData={analysisData}
+                  aiSummary={aiSummary}
                 />
               </div>
             </div>

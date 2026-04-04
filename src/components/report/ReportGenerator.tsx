@@ -22,6 +22,7 @@ interface AnalysisData {
 interface ReportGeneratorProps {
   analysisData: AnalysisData;
   modelName: string;
+  onReportReady?: (text: string) => void;
 }
 
 interface ParsedReport {
@@ -290,6 +291,7 @@ function LoadingSkeleton() {
 export default function ReportGenerator({
   analysisData,
   modelName,
+  onReportReady,
 }: ReportGeneratorProps) {
   const [report, setReport] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -306,6 +308,7 @@ export default function ReportGenerator({
       const prompt = buildPrompt(analysisData, modelName);
       const result = await generateReport(prompt);
       setReport(result);
+      onReportReady?.(result);
     } catch (err) {
       setError(
         err instanceof Error
