@@ -574,14 +574,11 @@ function EvaluatePageInner() {
             Paste HuggingFace URL
           </button>
           <button
-            onClick={() => setActiveTab('manual')}
-            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              activeTab === 'manual'
-                ? 'bg-[#6366F1]/15 text-[#6366F1]'
-                : 'text-[#475569] hover:text-[#0F172A]'
-            }`}
+            disabled
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-[#94A3B8] cursor-not-allowed opacity-60"
           >
             Manual Entry (pre-release / NDA)
+            <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-600">Coming Soon</span>
           </button>
         </div>
 
@@ -716,6 +713,9 @@ function EvaluatePageInner() {
                     tool_calling_supported: results.agenticFit.toolUseCapability > 50,
                     structured_output_supported: results.agenticFit.instructionFollowing > 50,
                     has_reasoning_tokens: results.agenticFit.reasoningDepth > 50,
+                    score: results.agenticFit.score,
+                    useCases: results.agenticFit.agenticUseCases,
+                    limitations: results.agenticFit.limitations,
                   }}
                 />
               )}
