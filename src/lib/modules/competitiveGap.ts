@@ -13,42 +13,43 @@ import {
 
 // ---- provider catalogs ----------------------------------------------------
 
-/** Hardcoded model catalogs for major inference providers. */
+/** Hardcoded model catalogs for major inference providers (updated April 2026). */
 const PROVIDER_CATALOGS: Record<string, readonly string[]> = {
   groq: [
-    "llama-3.3-70b",
-    "llama-3.1-8b",
-    "gemma2-9b-it",
-    "mixtral-8x7b",
-    "llama-4-scout",
+    "llama-3.3-70b", "llama-3.1-8b", "llama-4-scout",
+    "gemma2-9b-it", "gemma-3-27b", "gemma-3-12b", "gemma-3-4b",
+    "mixtral-8x7b", "qwen-3-32b", "deepseek-r1-distill",
   ],
   together: [
-    "llama-3.3-70b",
-    "llama-3.1-8b",
-    "qwen-2.5-72b",
-    "mixtral-8x7b",
-    "gemma-2-27b",
-    "deepseek-v3",
+    "llama-3.3-70b", "llama-3.1-8b", "llama-4-scout", "llama-4-maverick",
+    "gemma-3-27b", "gemma-3-12b", "gemma-2-27b",
+    "qwen-2.5-72b", "qwen-3-32b", "qwen-3-30b",
+    "mixtral-8x7b", "deepseek-v3", "deepseek-r1", "mistral-small-24b",
   ],
   fireworks: [
-    "llama-3.3-70b",
-    "llama-3.1-8b",
-    "qwen-2.5-72b",
-    "mixtral-8x7b",
-    "gemma-2-27b",
+    "llama-3.3-70b", "llama-3.1-8b", "llama-4-scout",
+    "gemma-3-27b", "gemma-2-27b",
+    "qwen-2.5-72b", "qwen-3-32b", "mixtral-8x7b", "deepseek-v3",
+    "mistral-small-24b",
   ],
   sambanova: [
-    "llama-3.3-70b",
-    "llama-3.1-8b",
-    "deepseek-v3",
-    "qwen-3-32b",
+    "llama-3.3-70b", "llama-3.1-8b", "llama-4-scout",
+    "gemma-3-27b", "deepseek-v3", "deepseek-r1", "qwen-3-32b",
   ],
   deepinfra: [
-    "llama-3.3-70b",
-    "llama-3.1-8b",
-    "qwen-2.5-72b",
-    "mixtral-8x7b",
-    "gemma-2-27b",
+    "llama-3.3-70b", "llama-3.1-8b", "llama-4-scout",
+    "gemma-3-27b", "gemma-2-27b",
+    "qwen-2.5-72b", "qwen-3-32b", "mixtral-8x7b", "mistral-small-24b",
+  ],
+  "google-ai": [
+    "gemma-3-27b", "gemma-3-12b", "gemma-3-4b", "gemma-3-1b",
+    "gemma-2-27b", "gemma-2-9b",
+  ],
+  openrouter: [
+    "llama-3.3-70b", "llama-3.1-8b", "llama-4-scout", "llama-4-maverick",
+    "gemma-3-27b", "gemma-3-12b", "gemma-2-27b",
+    "qwen-2.5-72b", "qwen-3-32b", "qwen-3-30b",
+    "deepseek-v3", "deepseek-r1", "mistral-small-24b", "mixtral-8x7b",
   ],
 } as const;
 
@@ -102,6 +103,8 @@ const PROVIDER_META: Record<string, { speed: string; price: string }> = {
   fireworks: { speed: "~200 tok/s", price: "$0.10–0.90/M" },
   sambanova: { speed: "~400 tok/s", price: "$0.10–1.00/M" },
   deepinfra: { speed: "~150 tok/s", price: "$0.05–0.80/M" },
+  "google-ai": { speed: "~200 tok/s", price: "$0.10–0.50/M" },
+  openrouter: { speed: "~150 tok/s", price: "$0.05–1.00/M" },
 };
 
 function matchProviders(modelName: string): ProviderMatch[] {

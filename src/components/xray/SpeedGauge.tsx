@@ -34,9 +34,9 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
   // Gauge parameters
   const size = 280;
   const cx = size / 2;
-  const cy = 150;
-  const r = 100;
-  const strokeW = 16;
+  const cy = 130;
+  const r = 95;
+  const strokeW = 14;
 
   // Semicircle from 180° to 0° (left to right, over the top)
   // In SVG, angles go clockwise from the positive X axis
@@ -92,9 +92,8 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
       <div className="flex justify-center">
         <svg
           width={size}
-          height={170}
-          viewBox={`0 0 ${size} 170`}
-          className="overflow-visible"
+          height={200}
+          viewBox={`0 0 ${size} 200`}
         >
           <defs>
             <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -145,21 +144,30 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
           {/* Score number */}
           <text
             x={cx}
-            y={cy + 32}
+            y={cy + 35}
             textAnchor="middle"
             fill="#0F172A"
-            fontSize={32}
+            fontSize={36}
             fontWeight="700"
             fontFamily="var(--font-mono), monospace"
           >
             {clampedScore}
           </text>
+          <text
+            x={cx}
+            y={cy + 52}
+            textAnchor="middle"
+            fill="#94A3B8"
+            fontSize={11}
+          >
+            / 100
+          </text>
 
           {/* Min / Max labels */}
-          <text x={startX - 2} y={cy + 20} textAnchor="middle" fill="#94A3B8" fontSize={11}>
+          <text x={startX + 5} y={cy + 18} textAnchor="middle" fill="#94A3B8" fontSize={11} fontWeight="500">
             0
           </text>
-          <text x={endX + 2} y={cy + 20} textAnchor="middle" fill="#94A3B8" fontSize={11}>
+          <text x={endX - 5} y={cy + 18} textAnchor="middle" fill="#94A3B8" fontSize={11} fontWeight="500">
             100
           </text>
         </svg>

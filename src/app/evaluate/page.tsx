@@ -693,7 +693,7 @@ function EvaluatePageInner() {
 
             {/* Row 5: REAP Grid + Competitor Table */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {results.reap && <REAPGrid reap={results.reap} />}
+              {results.reap && <REAPGrid reap={results.reap} isMoE={results.architecture?.isMoE ?? false} />}
               {results.competitiveGap && <CompetitorTable gap={results.competitiveGap} />}
             </div>
 
@@ -974,7 +974,37 @@ function ModelIdentityCard({
 // REAP Grid
 // ---------------------------------------------------------------------------
 
-function REAPGrid({ reap }: { reap: REAPResult }) {
+function REAPGrid({ reap, isMoE }: { reap: REAPResult; isMoE: boolean }) {
+  // Dense model — clean N/A card
+  if (!isMoE) {
+    return (
+      <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">REAP Compatibility</h3>
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F1F5F9]">
+            <svg className="h-7 w-7 text-[#94A3B8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+            </svg>
+          </div>
+          <p className="text-base font-semibold text-[#0F172A]">Not Applicable</p>
+          <p className="mt-2 max-w-xs text-sm text-[#475569]">
+            REAP (Router-weighted Expert Activation Pruning) only applies to <span className="font-medium">Mixture of Experts</span> models. This is a dense model.
+          </p>
+          <div className="mt-4 rounded-lg bg-[#F1F5F9] px-4 py-2.5">
+            <p className="text-xs text-[#475569]">
+              <span className="font-medium">Alternative optimizations:</span> FP8 quantization, weight pruning, or knowledge distillation can reduce model size for dense architectures.
+            </p>
+          </div>
+          <div className="mt-3 rounded-full bg-[#F1F5F9] px-3 py-1">
+            <span className="font-mono text-xs text-[#94A3B8]">Score: {reap.score}/100 (neutral)</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // MoE model — show REAP analysis
   return (
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">REAP Compatibility</h3>
@@ -989,21 +1019,21 @@ function REAPGrid({ reap }: { reap: REAPResult }) {
           </p>
         </div>
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
-          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Time to value</p>
-          <p className="text-sm font-semibold text-[#0F172A] capitalize">{reap.timeToValue}</p>
-        </div>
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
-          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Adoption likelihood</p>
-          <p className="font-mono text-lg font-semibold text-[#0F172A]">{reap.adoptionLikelihood}%</p>
-        </div>
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
-          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Engagement</p>
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Prunable experts</p>
           <p className="font-mono text-lg font-semibold text-[#0F172A]">{reap.engagementPotential}%</p>
+        </div>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">REAP precedent</p>
+          <p className="text-sm font-semibold text-[#0F172A]">{reap.adoptionLikelihood > 60 ? 'Yes' : 'No'}</p>
+        </div>
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Time to deploy</p>
+          <p className="text-sm font-semibold text-[#0F172A] capitalize">{reap.timeToValue}</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-medium text-[#475569] uppercase tracking-wide">Opportunities</p>
+        <p className="text-xs font-medium text-[#475569] uppercase tracking-wide">Analysis</p>
         <ul className="space-y-1">
           {reap.partnershipOpportunities.map((opp, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-[#475569]">
@@ -1013,19 +1043,6 @@ function REAPGrid({ reap }: { reap: REAPResult }) {
           ))}
         </ul>
       </div>
-
-      {reap.marketSegments.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {reap.marketSegments.map((seg) => (
-            <span
-              key={seg}
-              className="rounded-md bg-[#E2E8F0] px-2 py-0.5 text-xs text-[#475569]"
-            >
-              {seg}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
