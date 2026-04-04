@@ -341,6 +341,13 @@ export default function DiscoverPage() {
                 <p className="font-mono text-2xl font-semibold text-[#0F172A]">
                   {CEREBRAS_MODELS.length}
                 </p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {CEREBRAS_MODELS.map((m) => (
+                    <span key={m.id} className="rounded bg-[#6366F1]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#6366F1]">
+                      {m.name}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
