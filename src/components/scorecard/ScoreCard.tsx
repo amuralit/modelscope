@@ -121,7 +121,7 @@ export default function ScoreCard({
         className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold ring-1 ring-inset ${badge.bgClass} ${badge.textClass} ${badge.ringClass}`}
       >
         {badge.label}
-        <InfoTip text="Weighted composite of 7 analysis modules. GO (\u226580): launch immediately. EVALUATE (50-79): needs PM judgment. SKIP (<50): low Cerebras fit." />
+        <InfoTip text="Weighted composite of 7 analysis modules. GO (80+) = launch immediately. EVALUATE (50-79) = needs PM judgment. SKIP (below 50) = low Cerebras fit." />
       </span>
     </div>
   );

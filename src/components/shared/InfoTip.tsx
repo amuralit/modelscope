@@ -1,17 +1,10 @@
 'use client';
 
-/**
- * Small (i) icon with a hover tooltip. Use next to any label/heading
- * to explain what the metric or section means.
- *
- * Usage: <InfoTip text="Explanation here" />
- */
 export default function InfoTip({ text }: { text: string }) {
   return (
-    <span className="group relative inline-flex cursor-help align-middle ml-1">
-      {/* (i) icon */}
+    <span className="group/tip relative inline-flex cursor-help align-middle ml-1">
       <svg
-        className="h-3.5 w-3.5 text-[#94A3B8] transition-colors group-hover:text-[#6366F1]"
+        className="h-3.5 w-3.5 text-[#CBD5E1] transition-colors group-hover/tip:text-[#6366F1]"
         viewBox="0 0 20 20"
         fill="currentColor"
       >
@@ -21,15 +14,14 @@ export default function InfoTip({ text }: { text: string }) {
           clipRule="evenodd"
         />
       </svg>
-      {/* Tooltip popup */}
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 scale-95 opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 scale-95 opacity-0 transition-all duration-150 group-hover/tip:scale-100 group-hover/tip:opacity-100"
       >
-        <span className="block max-w-xs whitespace-normal rounded-lg bg-[#0F172A] px-3 py-2 text-[11px] leading-relaxed font-normal text-white shadow-xl">
+        <span className="block w-64 rounded-md bg-[#1E293B] px-3 py-2 text-[11px] leading-[1.5] font-normal text-[#E2E8F0] shadow-lg ring-1 ring-white/10">
           {text}
         </span>
-        <span className="mx-auto block h-0 w-0 border-x-[5px] border-t-[5px] border-x-transparent border-t-[#0F172A]" />
+        <span className="mx-auto block h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-[#1E293B]" />
       </span>
     </span>
   );
