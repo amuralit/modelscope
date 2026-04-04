@@ -47,6 +47,56 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ content: content ?? "" });
       }
 
+      case "live_inference": {
+        const body = await req.json();
+        const prompt = body.prompt ?? "What is the capital of France?";
+        const maxTokens = body.max_tokens ?? 50;
+
+        const startTime = Date.now();
+        const res = await fetch(`${CEREBRAS_API}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getKey()}`,
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: maxTokens,
+          }),
+        });
+        const wallTime = Date.now() - startTime;
+
+        if (!res.ok) {
+          return NextResponse.json({ error: `Cerebras API ${res.status}` }, { status: res.status });
+        }
+
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content ?? "";
+        const usage = data.usage ?? {};
+        const timeInfo = data.time_info ?? {};
+
+        return NextResponse.json({
+          content,
+          model: data.model ?? MODEL,
+          timing: {
+            queue_time_ms: (timeInfo.queue_time ?? 0) * 1000,
+            prompt_time_ms: (timeInfo.prompt_time ?? 0) * 1000,
+            completion_time_ms: (timeInfo.completion_time ?? 0) * 1000,
+            total_api_time_ms: (timeInfo.total_time ?? 0) * 1000,
+            wall_time_ms: wallTime,
+          },
+          usage: {
+            prompt_tokens: usage.prompt_tokens ?? 0,
+            completion_tokens: usage.completion_tokens ?? 0,
+            total_tokens: usage.total_tokens ?? 0,
+          },
+          tokens_per_second: usage.completion_tokens && timeInfo.completion_time
+            ? Math.round(usage.completion_tokens / timeInfo.completion_time)
+            : 0,
+        });
+      }
+
       case "test": {
         const res = await fetch(`${CEREBRAS_API}/chat/completions`, {
           method: "POST",

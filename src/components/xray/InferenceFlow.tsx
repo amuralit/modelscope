@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import InfoTip from '@/components/shared/InfoTip';
+import { runLiveInference, type LiveInferenceResult } from '@/lib/api/cerebras';
 
 interface InferenceFlowProps {
   modelName: string;
@@ -37,6 +38,8 @@ export default function InferenceFlow(props: InferenceFlowProps) {
   const [outputTokens, setOutputTokens] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [liveResult, setLiveResult] = useState<LiveInferenceResult | null>(null);
+  const [liveLoading, setLiveLoading] = useState(false);
 
   // Compute real metrics
   const inputTokens = SAMPLE_TOKENS.length;
@@ -230,6 +233,69 @@ export default function InferenceFlow(props: InferenceFlowProps) {
             <p className="text-[8px] text-[#94A3B8] uppercase">{m.label}<InfoTip text={m.tip} /></p>
           </div>
         ))}
+      </div>
+
+      {/* Live Cerebras Test */}
+      <div className="mt-3 rounded-lg border border-[#6366F1]/20 bg-[#6366F1]/5 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-[#6366F1] animate-pulse" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6366F1]">
+              Live Cerebras Inference
+              <InfoTip text="Send a real request to Cerebras Cloud (Llama 3.1-8B) and measure actual TTFT, decode speed, and throughput. Network latency included." />
+            </span>
+          </div>
+          <button
+            onClick={async () => {
+              setLiveLoading(true);
+              try {
+                const result = await runLiveInference(SAMPLE_PROMPT);
+                setLiveResult(result);
+              } catch { /* ignore */ }
+              setLiveLoading(false);
+            }}
+            disabled={liveLoading}
+            className="rounded-md bg-[#6366F1] px-3 py-1 text-[10px] font-semibold text-white hover:bg-[#4F46E5] disabled:opacity-40"
+          >
+            {liveLoading ? 'Testing...' : liveResult ? 'Retest' : 'Run Live Test'}
+          </button>
+        </div>
+
+        {liveResult && (
+          <div className="grid grid-cols-5 gap-2">
+            <div className="rounded-md bg-white px-2 py-1.5 text-center">
+              <p className="font-mono text-sm font-bold text-[#6366F1]">{liveResult.tokens_per_second.toLocaleString()}</p>
+              <p className="text-[8px] text-[#94A3B8] uppercase">Tok/s (real)</p>
+            </div>
+            <div className="rounded-md bg-white px-2 py-1.5 text-center">
+              <p className="font-mono text-sm font-bold text-[#0F172A]">{liveResult.timing.prompt_time_ms.toFixed(1)}ms</p>
+              <p className="text-[8px] text-[#94A3B8] uppercase">TTFT (real)</p>
+            </div>
+            <div className="rounded-md bg-white px-2 py-1.5 text-center">
+              <p className="font-mono text-sm font-bold text-[#0F172A]">{liveResult.timing.completion_time_ms.toFixed(1)}ms</p>
+              <p className="text-[8px] text-[#94A3B8] uppercase">Decode time</p>
+            </div>
+            <div className="rounded-md bg-white px-2 py-1.5 text-center">
+              <p className="font-mono text-sm font-bold text-[#0F172A]">{liveResult.usage.completion_tokens}</p>
+              <p className="text-[8px] text-[#94A3B8] uppercase">Output tokens</p>
+            </div>
+            <div className="rounded-md bg-white px-2 py-1.5 text-center">
+              <p className="font-mono text-sm font-bold text-[#94A3B8]">{liveResult.timing.wall_time_ms.toFixed(0)}ms</p>
+              <p className="text-[8px] text-[#94A3B8] uppercase">Wall time</p>
+            </div>
+          </div>
+        )}
+
+        {liveResult && (
+          <div className="mt-2 rounded-md bg-white px-3 py-2">
+            <p className="text-[10px] text-[#94A3B8] mb-1">Model: <span className="font-medium text-[#475569]">{liveResult.model}</span></p>
+            <p className="font-mono text-[11px] text-[#0F172A]">&quot;{liveResult.content.slice(0, 200)}{liveResult.content.length > 200 ? '...' : ''}&quot;</p>
+          </div>
+        )}
+
+        {!liveResult && !liveLoading && (
+          <p className="text-[10px] text-[#94A3B8]">Click &quot;Run Live Test&quot; to send a real request to Cerebras Cloud and measure actual inference timing.</p>
+        )}
       </div>
     </div>
   );

@@ -23,6 +23,37 @@ export async function generateReport(prompt: string): Promise<string> {
 }
 
 /**
+ * Run a live inference test on Cerebras and return real timing data.
+ */
+export interface LiveInferenceResult {
+  content: string;
+  model: string;
+  timing: {
+    queue_time_ms: number;
+    prompt_time_ms: number;
+    completion_time_ms: number;
+    total_api_time_ms: number;
+    wall_time_ms: number;
+  };
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  tokens_per_second: number;
+}
+
+export async function runLiveInference(prompt?: string): Promise<LiveInferenceResult> {
+  const res = await fetch("/api/cerebras?action=live_inference", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: prompt ?? "What is the capital of France?", max_tokens: 50 }),
+  });
+  if (!res.ok) throw new Error(`Live inference failed: ${res.status}`);
+  return res.json();
+}
+
+/**
  * Verify the server-side Cerebras API key is valid.
  */
 export async function testConnection(): Promise<boolean> {

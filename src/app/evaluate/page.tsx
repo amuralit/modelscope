@@ -18,6 +18,7 @@ import BenchmarkScores from '@/components/xray/BenchmarkScores';
 import PDFExportButton from '@/components/report/PDFExport';
 import InferenceFlow from '@/components/xray/InferenceFlow';
 import CompetitorTable from '@/components/xray/CompetitorTable';
+import InfoTip from '@/components/shared/InfoTip';
 import Badge from '@/components/shared/Badge';
 
 // --- API ---
@@ -725,7 +726,7 @@ function EvaluatePageInner() {
 
             {/* Row 5: REAP Grid + Competitor Table */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {results.reap && <REAPGrid reap={results.reap} isMoE={results.architecture?.isMoE ?? false} />}
+              {results.reap && <REAPGrid reap={results.reap} isMoE={results.architecture?.isMoE ?? false} arch={results.architecture} />}
               {results.competitiveGap && <CompetitorTable gap={results.competitiveGap} />}
             </div>
 
@@ -1118,31 +1119,42 @@ function ModelIdentityCard({
 // REAP Grid
 // ---------------------------------------------------------------------------
 
-function REAPGrid({ reap, isMoE }: { reap: REAPResult; isMoE: boolean }) {
-  // Dense model — clean N/A card
+function REAPGrid({ reap, isMoE, arch }: { reap: REAPResult; isMoE: boolean; arch?: ArchitectureScanResult | null }) {
+  // Dense model — show Optimization Strategies instead
   if (!isMoE) {
+    const paramB = arch ? (arch.parameterCount / 1e9).toFixed(1) : '?';
+    const fp16GB = arch ? (arch.parameterCount * 2 / 1024 ** 3).toFixed(1) : '?';
+    const fp8GB = arch ? (arch.parameterCount / 1024 ** 3).toFixed(1) : '?';
+    const fp4GB = arch ? (arch.parameterCount * 0.5 / 1024 ** 3).toFixed(1) : '?';
+    const fp8Wafers = arch ? Math.ceil(arch.parameterCount / (44 * 1024 ** 3)) : '?';
+    const fp4Wafers = arch ? Math.ceil(arch.parameterCount * 0.5 / (44 * 1024 ** 3)) : '?';
+
+    const strategies = [
+      { name: 'FP8 Quantization', impact: 'High', desc: `Halves memory: ${fp16GB}GB → ${fp8GB}GB (${fp8Wafers} wafer${fp8Wafers !== 1 ? 's' : ''})`, badge: 'emerald' as const },
+      { name: 'FP4 Quantization', impact: 'Very High', desc: `Quarter memory: ${fp16GB}GB → ${fp4GB}GB (${fp4Wafers} wafer${fp4Wafers !== 1 ? 's' : ''})`, badge: 'indigo' as const },
+      { name: 'Weight Pruning', impact: 'Medium', desc: `Remove 20-40% of weights with minimal quality loss on ${paramB}B model`, badge: 'amber' as const },
+      { name: 'KV Cache Optimization', impact: arch && arch.contextWindow >= 32000 ? 'High' : 'Low', desc: arch && arch.contextWindow >= 32000 ? 'Sliding window or chunked attention for long context' : 'Standard context — minimal cache pressure', badge: arch && arch.contextWindow >= 32000 ? 'amber' as const : 'neutral' as const },
+      { name: 'Speculative Decoding', impact: 'Medium', desc: `Use smaller draft model to predict tokens, verify with ${paramB}B model`, badge: 'indigo' as const },
+    ];
+
+    const badgeColors = { emerald: 'bg-emerald-100 text-emerald-700', indigo: 'bg-[#6366F1]/10 text-[#6366F1]', amber: 'bg-amber-100 text-amber-700', neutral: 'bg-[#F1F5F9] text-[#94A3B8]' };
+
     return (
-      <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">REAP Compatibility</h3>
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F1F5F9]">
-            <svg className="h-7 w-7 text-[#94A3B8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-            </svg>
-          </div>
-          <p className="text-base font-semibold text-[#0F172A]">Not Applicable</p>
-          <p className="mt-2 max-w-xs text-sm text-[#475569]">
-            REAP (Router-weighted Expert Activation Pruning) only applies to <span className="font-medium">Mixture of Experts</span> models. This is a dense model.
-          </p>
-          <div className="mt-4 rounded-lg bg-[#F1F5F9] px-4 py-2.5">
-            <p className="text-xs text-[#475569]">
-              <span className="font-medium">Alternative optimizations:</span> FP8 quantization, weight pruning, or knowledge distillation can reduce model size for dense architectures.
-            </p>
-          </div>
-          <div className="mt-3 rounded-full bg-[#F1F5F9] px-3 py-1">
-            <span className="font-mono text-xs text-[#94A3B8]">Score: {reap.score}/100 (neutral)</span>
-          </div>
+      <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
+        <h3 className="mb-3 text-sm font-semibold text-[#0F172A]">
+          Optimization Strategies
+          <InfoTip text="For dense models, REAP (expert pruning) doesn't apply. These alternative optimization strategies can reduce memory and improve throughput on WSE-3." />
+        </h3>
+        <div className="space-y-2">
+          {strategies.map((s) => (
+            <div key={s.name} className="flex items-start gap-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-2.5">
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold ${badgeColors[s.badge]}`}>{s.impact}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-[#0F172A]">{s.name}</p>
+                <p className="text-[10px] text-[#475569] leading-relaxed">{s.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
