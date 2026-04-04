@@ -16,7 +16,7 @@ const navItems = [
   },
   {
     label: 'X-ray Model',
-    href: '/evaluate',
+    href: '/evaluate?model=google/gemma-3-27b-it',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
