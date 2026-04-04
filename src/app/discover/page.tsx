@@ -419,7 +419,7 @@ export default function DiscoverPage() {
             {/* Table */}
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0]">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[700px]">
                   <thead>
                     <tr className="border-b border-[#E2E8F0] bg-[#FFFFFF]">
                       <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#475569]">

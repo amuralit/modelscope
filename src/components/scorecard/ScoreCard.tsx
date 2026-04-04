@@ -68,9 +68,9 @@ export default function ScoreCard({
   const dashOffset = circumference - progress;
 
   return (
-    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-8 text-center">
+    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-4 sm:p-8 text-center">
       {/* Circular progress ring with score */}
-      <div className="relative mx-auto mb-6 h-[180px] w-[180px]">
+      <div className="relative mx-auto mb-6 h-[140px] w-[140px] sm:h-[180px] sm:w-[180px]">
         <svg
           className="h-full w-full -rotate-90"
           viewBox="0 0 160 160"
@@ -101,7 +101,7 @@ export default function ScoreCard({
         {/* Score number centered */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
-            className={`font-mono text-5xl font-bold ${textClass}`}
+            className={`font-mono text-4xl sm:text-5xl font-bold ${textClass}`}
           >
             {compositeScore}
           </span>

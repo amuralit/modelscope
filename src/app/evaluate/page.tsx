@@ -565,7 +565,7 @@ function EvaluatePageInner() {
         </div>
 
         {/* ----- Tab Selector ----- */}
-        <div className="mb-6 flex gap-1 rounded-lg bg-[#FFFFFF] p-1 w-fit border border-[#E2E8F0]">
+        <div className="mb-6 flex flex-wrap gap-1 rounded-lg bg-[#FFFFFF] p-1 w-fit border border-[#E2E8F0]">
           <button
             onClick={() => setActiveTab('url')}
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
@@ -989,7 +989,7 @@ function ModelIdentityCard({
 
   return (
     <div className="rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] p-6">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_auto_auto]">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto_auto]">
         {/* ---- Left Section: Model Identity ---- */}
         <div className="min-w-0">
           <div className="flex items-start gap-3">
@@ -1048,9 +1048,9 @@ function ModelIdentityCard({
 
         {/* ---- Center Section: Key Metrics ---- */}
         <div className="flex items-center">
-          <div className="flex gap-px">
+          <div className="grid grid-cols-2 gap-px sm:flex">
             {/* Parameters */}
-            <div className="flex flex-col items-center rounded-l-lg border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+            <div className="flex flex-col items-center rounded-lg sm:rounded-none sm:rounded-l-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 sm:px-5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Parameters</span>
               <span className="mt-1 font-mono text-xl font-bold text-[#0F172A]">
                 {params ? formatParams(params) : '--'}
@@ -1065,7 +1065,7 @@ function ModelIdentityCard({
             </div>
 
             {/* Context Window */}
-            <div className="flex flex-col items-center border-y border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+            <div className="flex flex-col items-center rounded-lg sm:rounded-none border-y border-x sm:border-x-0 border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 sm:px-5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Context</span>
               <span className="mt-1 font-mono text-xl font-bold text-[#0F172A]">
                 {contextWindow ? formatContext(contextWindow) : '--'}
@@ -1074,7 +1074,7 @@ function ModelIdentityCard({
             </div>
 
             {/* Layers */}
-            <div className="flex flex-col items-center border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+            <div className="flex flex-col items-center rounded-lg sm:rounded-none border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 sm:px-5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Layers</span>
               <span className="mt-1 font-mono text-xl font-bold text-[#0F172A]">
                 {layers ?? '--'}
@@ -1083,7 +1083,7 @@ function ModelIdentityCard({
             </div>
 
             {/* Composite Score */}
-            <div className="flex flex-col items-center rounded-r-lg border border-l-0 border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3">
+            <div className="flex flex-col items-center rounded-lg sm:rounded-none sm:rounded-r-lg border sm:border-l-0 border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 sm:px-5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">Score</span>
               <span className={`mt-1 font-mono text-xl font-bold ${verdictColor.text}`}>
                 {compositeScore.score}

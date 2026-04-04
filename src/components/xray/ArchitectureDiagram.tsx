@@ -91,11 +91,11 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
   const fp8Bytes = arch.parameterCount * 1;
 
   return (
-    <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-4 sm:p-5">
       {/* Header */}
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <h3 className="text-sm font-semibold text-[#0F172A]">Architecture Overview <InfoTip text="Deep analysis of model architecture — layers, attention mechanism, parameter count, memory footprint, and estimated inference speeds on Cerebras WSE-3." /></h3>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           <Badge
             text={arch.isMoE ? 'Mixture of Experts' : 'Dense'}
             color={arch.isMoE ? 'amber' : 'indigo'}
@@ -106,7 +106,7 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
       </div>
 
       {/* Primary stats row */}
-      <div className={`mb-3 grid gap-2 ${arch.isMoE ? 'grid-cols-4' : 'grid-cols-3'}`}>
+      <div className={`mb-3 grid gap-2 ${arch.isMoE ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'}`}>
         <Stat
           label="Parameters"
           value={formatParams(arch.parameterCount)}
@@ -137,7 +137,7 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
       </div>
 
       {/* Architecture details grid */}
-      <div className="mb-3 grid grid-cols-5 gap-2">
+      <div className="mb-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         <Stat label="Layers" value={String(arch.numLayers)} tip="Number of transformer blocks stacked sequentially. More layers = deeper reasoning but more memory and compute." />
         <Stat label="Heads" value={`${arch.numAttentionHeads}`} sub={`${arch.numKVHeads} KV`} tip="Query attention heads and key-value heads. GQA shares KV heads across multiple query heads to save memory." />
         <Stat label="Head Dim" value={String(arch.headDim)} tip="Dimensionality of each attention head. Typically 64 or 128. Hidden size = heads x head dim." />
@@ -146,7 +146,7 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
       </div>
 
       {/* Performance estimates */}
-      <div className="mb-3 grid grid-cols-4 gap-2">
+      <div className="mb-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <Stat
           label="FP16 Memory"
           value={formatBytes(fp16Bytes)}
@@ -175,7 +175,7 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
       </div>
 
       {/* KV Cache at max context */}
-      <div className="mb-3 grid grid-cols-3 gap-2">
+      <div className="mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
         <Stat
           label="KV Cache / Token"
           value={formatBytes(kvCachePerToken)}

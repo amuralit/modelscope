@@ -184,7 +184,7 @@ export default function BenchmarkScores({ modelCard, modelType }: BenchmarkScore
               </p>
               <div className="space-y-2.5">
                 {entries.map((b) => (
-                  <div key={b.name} className="grid items-center gap-3" style={{ gridTemplateColumns: '100px 1fr 70px' }}>
+                  <div key={b.name} className="grid items-center gap-2 sm:gap-3" style={{ gridTemplateColumns: '80px 1fr 60px' }}>
                     <span className="text-xs font-medium text-[#0F172A] truncate">{b.name}</span>
                     <div className="h-6 rounded-md bg-[#F1F5F9] overflow-hidden relative">
                       <div className="absolute left-[40%] top-0 h-full w-px bg-[#E2E8F0] z-[1]" />
@@ -206,11 +206,11 @@ export default function BenchmarkScores({ modelCard, modelType }: BenchmarkScore
       </div>
 
       {/* Footer */}
-      <div className="mt-4 flex items-center gap-3 rounded-lg bg-[#F8FAFC] px-3 py-2 text-[10px] text-[#94A3B8]">
+      <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 rounded-lg bg-[#F8FAFC] px-3 py-2 text-[10px] text-[#94A3B8]">
         <span>Benchmarks found: <strong className="text-[#475569]">{benchmarks.length}</strong></span>
-        <span className="text-[#E2E8F0]">|</span>
+        <span className="hidden sm:inline text-[#E2E8F0]">|</span>
         <span>Scores from the <strong className="text-[#475569]">largest model variant</strong> in the card (rightmost column)</span>
-        <span className="text-[#E2E8F0]">|</span>
+        <span className="hidden sm:inline text-[#E2E8F0]">|</span>
         <span>Model: <strong className="text-[#475569]">{modelType}</strong></span>
       </div>
     </div>

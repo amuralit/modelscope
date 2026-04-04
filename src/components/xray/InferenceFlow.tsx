@@ -127,7 +127,7 @@ export default function InferenceFlow(props: InferenceFlowProps) {
   );
 
   return (
-    <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
+    <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#0F172A]">
           Inference Flow
@@ -220,7 +220,7 @@ export default function InferenceFlow(props: InferenceFlowProps) {
       </div>
 
       {/* Inference metrics summary */}
-      <div className="mt-3 grid grid-cols-5 gap-2">
+      <div className="mt-3 grid grid-cols-3 sm:grid-cols-5 gap-2">
         {[
           { label: 'Input Tokens', value: String(inputTokens), tip: 'Prompt tokens processed during prefill phase' },
           { label: 'Output Tokens', value: isDone ? String(outputTokenCount) : '...', tip: 'Generated tokens during autoregressive decode' },
@@ -262,7 +262,7 @@ export default function InferenceFlow(props: InferenceFlowProps) {
         </div>
 
         {liveResult && (
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             <div className="rounded-md bg-white px-2 py-1.5 text-center">
               <p className="font-mono text-sm font-bold text-[#6366F1]">{liveResult.tokens_per_second.toLocaleString()}</p>
               <p className="text-[8px] text-[#94A3B8] uppercase">Tok/s (real)</p>

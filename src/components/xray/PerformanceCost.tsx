@@ -253,18 +253,18 @@ export default function PerformanceCost({
   return (
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       {/* Header */}
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-sm font-bold text-[#0F172A]">
             Performance &amp; Cost Estimates <InfoTip text="Estimated inference performance and cost on Cerebras WSE-3 vs typical GPU cloud providers." />
           </h3>
-          <p className="mt-0.5 text-[11px] text-[#94A3B8]">
+          <p className="mt-0.5 text-[11px] text-[#94A3B8] break-words">
             {isMoE && activeParameters
               ? `${fmtNum(parameterCount)} total params (${fmtNum(activeParameters)} active) · ${fmtNum(contextWindow)} ctx · ${numLayers}L / ${numKVHeads}KV / ${headDim}d`
               : `${fmtNum(parameterCount)} params · ${fmtNum(contextWindow)} ctx · ${numLayers}L / ${numKVHeads}KV / ${headDim}d`}
           </p>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-[#EEF2FF] px-2.5 py-1">
+        <div className="flex items-center gap-1.5 rounded-full bg-[#EEF2FF] px-2.5 py-1 w-fit shrink-0">
           <div className="h-1.5 w-1.5 rounded-full bg-[#6366F1]" />
           <span className="text-[10px] font-bold text-[#6366F1]">
             Cerebras Inference

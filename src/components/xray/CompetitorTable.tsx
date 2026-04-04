@@ -50,7 +50,7 @@ export default function CompetitorTable({ gap }: CompetitorTableProps) {
           </div>
           <span className="font-mono text-xs font-bold text-[#6366F1]">{cerebrasSpeed.toLocaleString()} tok/s</span>
         </div>
-        <div className="grid grid-cols-3 gap-4 mt-2">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-2">
           <div>
             <p className="text-[9px] text-[#94A3B8] uppercase">Input</p>
             <p className="font-mono text-sm font-semibold text-[#0F172A]">${cerebrasInput.toFixed(2)}<span className="text-[9px] text-[#94A3B8]">/M</span></p>
@@ -73,7 +73,7 @@ export default function CompetitorTable({ gap }: CompetitorTableProps) {
             Providers serving this model ({servingProviders.length})
           </p>
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full min-w-[500px] text-left">
               <thead>
                 <tr className="border-b border-[#E2E8F0]">
                   <th className="pb-1.5 text-[9px] font-semibold uppercase tracking-wider text-[#94A3B8]">Provider</th>
@@ -127,7 +127,7 @@ export default function CompetitorTable({ gap }: CompetitorTableProps) {
       {/* Strategic insights */}
       <div className="border-t border-[#E2E8F0] pt-3 space-y-1.5">
         <p className="text-[9px] font-semibold uppercase tracking-wider text-[#94A3B8]">Strategic Assessment</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <div className="rounded-md bg-[#F8FAFC] px-2 py-1.5 text-center">
             <p className={`text-xs font-bold ${gap.marketGapSize === 'large' ? 'text-emerald-600' : gap.marketGapSize === 'medium' ? 'text-amber-600' : 'text-[#475569]'}`}>
               {gap.marketGapSize.charAt(0).toUpperCase() + gap.marketGapSize.slice(1)}

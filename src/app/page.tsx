@@ -101,7 +101,7 @@ export default function HomePage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl font-extrabold tracking-tight text-[#0F172A] sm:text-6xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl lg:text-6xl">
             Model<span className="bg-gradient-to-r from-[#6366F1] to-[#818CF8] bg-clip-text text-transparent">Lens</span>
           </h1>
           <p className="mt-4 text-lg text-[#475569]">
