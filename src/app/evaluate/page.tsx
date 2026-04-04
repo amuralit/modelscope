@@ -660,23 +660,6 @@ function EvaluatePageInner() {
               )}
             </div>
 
-            {/* Row 3a: Inference Flow Animation */}
-            {results.architecture && (
-              <InferenceFlow
-                modelName={modelId ?? 'Unknown'}
-                numLayers={results.architecture.numLayers}
-                numHeads={results.architecture.numAttentionHeads}
-                numKVHeads={results.architecture.numKVHeads}
-                hiddenSize={results.architecture.hiddenSize}
-                isMoE={results.architecture.isMoE}
-                numExperts={results.architecture.numExperts}
-                numExpertsPerTok={results.architecture.numExpertsPerTok}
-                contextWindow={results.architecture.contextWindow}
-                estimatedTps={estimateTpsFromParams(results.architecture.parameterCount)}
-                vocabSize={results.architecture.vocabSize}
-              />
-            )}
-
             {/* Row 3b: Performance & Cost Estimates (full width) */}
             {results.architecture && (
               <PerformanceCost
@@ -747,6 +730,23 @@ function EvaluatePageInner() {
 
             {/* Row 6: Demand Timeline (full width) */}
             {results.demandSignal && <DemandTimeline demand={results.demandSignal} />}
+
+            {/* Inference Flow Animation */}
+            {results.architecture && (
+              <InferenceFlow
+                modelName={modelId ?? 'Unknown'}
+                numLayers={results.architecture.numLayers}
+                numHeads={results.architecture.numAttentionHeads}
+                numKVHeads={results.architecture.numKVHeads}
+                hiddenSize={results.architecture.hiddenSize}
+                isMoE={results.architecture.isMoE}
+                numExperts={results.architecture.numExperts}
+                numExpertsPerTok={results.architecture.numExpertsPerTok}
+                contextWindow={results.architecture.contextWindow}
+                estimatedTps={estimateTpsFromParams(results.architecture.parameterCount)}
+                vocabSize={results.architecture.vocabSize}
+              />
+            )}
 
             {/* Row 7: Report Generator + Export */}
             <div className="space-y-6">
