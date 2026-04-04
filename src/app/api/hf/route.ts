@@ -16,6 +16,29 @@ function authHeaders(): HeadersInit {
   return { Authorization: `Bearer ${getToken()}` };
 }
 
+async function handleHFError(res: Response, modelId?: string | null): Promise<NextResponse> {
+  if (res.status === 403) {
+    const body = await res.text().catch(() => "");
+    if (body.includes("restricted") || body.includes("gated")) {
+      return NextResponse.json(
+        { error: `This is a gated model. Visit https://huggingface.co/${modelId ?? ""} and accept the license agreement first, then retry.` },
+        { status: 403 },
+      );
+    }
+    return NextResponse.json(
+      { error: `Access denied (403). The model may be private or require license acceptance at https://huggingface.co/${modelId ?? ""}` },
+      { status: 403 },
+    );
+  }
+  if (res.status === 404) {
+    return NextResponse.json(
+      { error: `Model not found (404). Check that "${modelId}" exists on HuggingFace.` },
+      { status: 404 },
+    );
+  }
+  return NextResponse.json({ error: `HuggingFace API error: ${res.status} ${res.statusText}` }, { status: res.status });
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const action = searchParams.get("action");
@@ -28,7 +51,7 @@ export async function GET(req: NextRequest) {
         const res = await fetch(`${HF_BASE}/${modelId}/raw/main/config.json`, {
           headers: authHeaders(),
         });
-        if (!res.ok) return NextResponse.json({ error: `HF ${res.status}` }, { status: res.status });
+        if (!res.ok) return handleHFError(res, modelId);
         const data = await res.json();
         return NextResponse.json(data);
       }
@@ -38,7 +61,7 @@ export async function GET(req: NextRequest) {
         const res = await fetch(`${HF_API}/models/${modelId}`, {
           headers: authHeaders(),
         });
-        if (!res.ok) return NextResponse.json({ error: `HF ${res.status}` }, { status: res.status });
+        if (!res.ok) return handleHFError(res, modelId);
         const data = await res.json();
         return NextResponse.json(data);
       }
@@ -49,7 +72,7 @@ export async function GET(req: NextRequest) {
           `${HF_BASE}/${modelId}/raw/main/tokenizer_config.json`,
           { headers: authHeaders() },
         );
-        if (!res.ok) return NextResponse.json({ error: `HF ${res.status}` }, { status: res.status });
+        if (!res.ok) return handleHFError(res, modelId);
         const data = await res.json();
         return NextResponse.json(data);
       }
@@ -59,7 +82,7 @@ export async function GET(req: NextRequest) {
         const res = await fetch(`${HF_BASE}/${modelId}/raw/main/README.md`, {
           headers: authHeaders(),
         });
-        if (!res.ok) return NextResponse.json({ error: `HF ${res.status}` }, { status: res.status });
+        if (!res.ok) return handleHFError(res, modelId);
         const text = await res.text();
         return NextResponse.json({ content: text });
       }
@@ -74,7 +97,7 @@ export async function GET(req: NextRequest) {
         const res = await fetch(`${HF_API}/models?${params.toString()}`, {
           headers: authHeaders(),
         });
-        if (!res.ok) return NextResponse.json({ error: `HF ${res.status}` }, { status: res.status });
+        if (!res.ok) return handleHFError(res);
         const data = await res.json();
         return NextResponse.json(data);
       }
