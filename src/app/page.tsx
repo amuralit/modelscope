@@ -102,7 +102,7 @@ export default function HomePage() {
 
           {/* Title */}
           <h1 className="text-5xl font-extrabold tracking-tight text-[#0F172A] sm:text-6xl">
-            Model<span className="bg-gradient-to-r from-[#6366F1] to-[#818CF8] bg-clip-text text-transparent">Scope</span>
+            Model<span className="bg-gradient-to-r from-[#6366F1] to-[#818CF8] bg-clip-text text-transparent">Lens</span>
           </h1>
           <p className="mt-4 text-lg text-[#475569]">
             X-ray any open-weight model. Score its fit for <span className="font-semibold text-[#0F172A]">Cerebras Inference</span>.
