@@ -154,7 +154,7 @@ export default function DiscoverPage() {
           const lab = info.author ?? info.id.split('/')[0] ?? 'Unknown';
           const estimatedParams = estimateParamsFromInfo(info);
           const onCerebras_ = isOnCerebras(info.modelId ?? info.id);
-          const labTier = getLabTier(info.author);
+          const labTier = getLabTier(lab);
           const quickScore = computeQuickScore(
             info.downloadsLastMonth ?? info.downloads ?? 0,
             labTier,
@@ -206,7 +206,7 @@ export default function DiscoverPage() {
     result = [...result].sort((a, b) => {
       if (sortBy === 'quickScore') return b.quickScore - a.quickScore;
       if (sortBy === 'downloads')
-        return (b.downloadsLastMonth ?? 0) - (a.downloadsLastMonth ?? 0);
+        return (b.downloadsLastMonth ?? b.downloads ?? 0) - (a.downloadsLastMonth ?? a.downloads ?? 0);
       return (b.likes ?? 0) - (a.likes ?? 0);
     });
 
@@ -425,10 +425,13 @@ export default function DiscoverPage() {
                         Params
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
-                        Downloads (30d)
+                        Downloads
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
                         Likes
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#475569]">
+                        Trending
                       </th>
                       <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-[#475569]">
                         On Cerebras?
@@ -472,12 +475,17 @@ export default function DiscoverPage() {
                           </td>
                           <td className="px-4 py-3 text-right">
                             <span className="font-mono text-sm text-[#0F172A]">
-                              {(model.downloadsLastMonth ?? 0).toLocaleString()}
+                              {(model.downloadsLastMonth ?? model.downloads ?? 0).toLocaleString()}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
                             <span className="font-mono text-sm text-[#0F172A]">
                               {(model.likes ?? 0).toLocaleString()}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="font-mono text-sm font-semibold text-[#6366F1]">
+                              {model.trendingScore ?? '—'}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-center">

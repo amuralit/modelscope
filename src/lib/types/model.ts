@@ -41,6 +41,7 @@ export interface ModelInfo {
   pipeline_tag?: string;
   library_name?: string;
   modelId: string;
+  trendingScore?: number;
 }
 
 // ---------------------------------------------------------------------------
