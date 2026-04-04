@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
+import Header from "@/components/layout/Header";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className="min-h-full flex font-sans">
         <Sidebar />
         <main className="flex-1 ml-0 lg:ml-60 min-h-screen">
+          <Header />
           {children}
         </main>
       </body>
