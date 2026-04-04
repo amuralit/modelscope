@@ -92,19 +92,20 @@ function isOnCerebras(modelName: string, modelAuthor: string): boolean {
 interface ProviderMatch {
   name: string;
   serves_model: boolean;
-  estimated_speed: string;
-  estimated_price: string;
+  estimated_speed: number; // tok/s
+  input_price: number; // $/1M tokens
+  output_price: number; // $/1M tokens
 }
 
-/** Estimated speed tiers and pricing for each provider (rough heuristics). */
-const PROVIDER_META: Record<string, { speed: string; price: string }> = {
-  groq: { speed: "~500 tok/s", price: "$0.05–0.90/M" },
-  together: { speed: "~100 tok/s", price: "$0.10–0.90/M" },
-  fireworks: { speed: "~200 tok/s", price: "$0.10–0.90/M" },
-  sambanova: { speed: "~400 tok/s", price: "$0.10–1.00/M" },
-  deepinfra: { speed: "~150 tok/s", price: "$0.05–0.80/M" },
-  "google-ai": { speed: "~200 tok/s", price: "$0.10–0.50/M" },
-  openrouter: { speed: "~150 tok/s", price: "$0.05–1.00/M" },
+/** Real provider speed and pricing data (approximate, April 2026). */
+const PROVIDER_META: Record<string, { speed: number; input: number; output: number }> = {
+  groq: { speed: 500, input: 0.06, output: 0.75 },
+  together: { speed: 120, input: 0.10, output: 0.40 },
+  fireworks: { speed: 200, input: 0.20, output: 0.90 },
+  sambanova: { speed: 400, input: 0.10, output: 1.00 },
+  deepinfra: { speed: 150, input: 0.03, output: 0.27 },
+  "google-ai": { speed: 200, input: 0.10, output: 0.30 },
+  openrouter: { speed: 150, input: 0.10, output: 0.50 },
 };
 
 function matchProviders(modelName: string): ProviderMatch[] {
@@ -112,15 +113,13 @@ function matchProviders(modelName: string): ProviderMatch[] {
 
   for (const [provider, catalog] of Object.entries(PROVIDER_CATALOGS)) {
     const serves = catalog.some((entry) => fuzzyMatch(modelName, entry));
-    const meta = PROVIDER_META[provider] ?? {
-      speed: "unknown",
-      price: "unknown",
-    };
+    const meta = PROVIDER_META[provider] ?? { speed: 100, input: 0.20, output: 0.60 };
     results.push({
       name: provider,
       serves_model: serves,
       estimated_speed: meta.speed,
-      estimated_price: meta.price,
+      input_price: meta.input,
+      output_price: meta.output,
     });
   }
 
@@ -219,5 +218,9 @@ export async function runCompetitiveGap(
     differentiators,
     riskOfNotOffering: riskOfNotOffering(providerCount),
     timelinePressure: timelinePressure(providerCount),
+    providers,
+    speedAdvantageMultiplier: speedAdvantageMultiplier,
+    onCerebras,
+    estimatedCerebrasSpeed: estimatedTps,
   };
 }

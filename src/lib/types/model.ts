@@ -122,6 +122,16 @@ export interface CompetitiveGapResult {
   differentiators: string[];
   riskOfNotOffering: "high" | "medium" | "low";
   timelinePressure: "urgent" | "moderate" | "low";
+  providers: {
+    name: string;
+    serves_model: boolean;
+    estimated_speed: number;
+    input_price: number;
+    output_price: number;
+  }[];
+  speedAdvantageMultiplier: number;
+  onCerebras: boolean;
+  estimatedCerebrasSpeed: number;
 }
 
 export interface DemandSignalResult {

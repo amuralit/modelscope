@@ -17,6 +17,7 @@ import PerformanceCost from '@/components/xray/PerformanceCost';
 import BenchmarkScores from '@/components/xray/BenchmarkScores';
 import PDFExportButton from '@/components/report/PDFExport';
 import InferenceFlow from '@/components/xray/InferenceFlow';
+import CompetitorTable from '@/components/xray/CompetitorTable';
 import Badge from '@/components/shared/Badge';
 
 // --- API ---
@@ -1191,95 +1192,7 @@ function REAPGrid({ reap, isMoE }: { reap: REAPResult; isMoE: boolean }) {
 }
 
 // ---------------------------------------------------------------------------
-// Competitor Table
-// ---------------------------------------------------------------------------
-
-function CompetitorTable({ gap }: { gap: CompetitiveGapResult }) {
-  return (
-    <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">Competitive Landscape</h3>
-
-      <div className="mb-4 grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-center">
-          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Gap size</p>
-          <p className={`text-sm font-bold capitalize ${
-            gap.marketGapSize === 'large'
-              ? 'text-emerald-600'
-              : gap.marketGapSize === 'medium'
-                ? 'text-amber-600'
-                : gap.marketGapSize === 'small'
-                  ? 'text-red-600'
-                  : 'text-[#94A3B8]'
-          }`}>
-            {gap.marketGapSize}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-center">
-          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Risk</p>
-          <p className={`text-sm font-bold capitalize ${
-            gap.riskOfNotOffering === 'high'
-              ? 'text-red-600'
-              : gap.riskOfNotOffering === 'medium'
-                ? 'text-amber-600'
-                : 'text-emerald-600'
-          }`}>
-            {gap.riskOfNotOffering}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-center">
-          <p className="text-xs text-[#94A3B8] uppercase tracking-wide">Urgency</p>
-          <p className={`text-sm font-bold capitalize ${
-            gap.timelinePressure === 'urgent'
-              ? 'text-red-600'
-              : gap.timelinePressure === 'moderate'
-                ? 'text-amber-600'
-                : 'text-emerald-600'
-          }`}>
-            {gap.timelinePressure}
-          </p>
-        </div>
-      </div>
-
-      {/* Competitors serving this model */}
-      {gap.competitorsOffering.length > 0 ? (
-        <div className="mb-4">
-          <p className="mb-2 text-xs font-medium text-[#475569] uppercase tracking-wide">
-            Providers serving this model
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {gap.competitorsOffering.map((provider) => (
-              <span
-                key={provider}
-                className="inline-flex items-center rounded-md bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-600 ring-1 ring-inset ring-red-500/20 capitalize"
-              >
-                {provider}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
-          <p className="text-sm text-emerald-600">
-            No competitors currently serve this model -- first-mover opportunity.
-          </p>
-        </div>
-      )}
-
-      {/* Differentiators */}
-      <div className="space-y-2">
-        <p className="text-xs font-medium text-[#475569] uppercase tracking-wide">Differentiators</p>
-        <ul className="space-y-1">
-          {gap.differentiators.map((diff, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-[#475569]">
-              <span className="mt-0.5 text-[#6366F1]">-</span>
-              {diff}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
+// (CompetitorTable is now imported from @/components/xray/CompetitorTable)
 
 // ---------------------------------------------------------------------------
 // Demand Timeline
