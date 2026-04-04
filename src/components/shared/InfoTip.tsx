@@ -17,8 +17,9 @@ export default function InfoTip({ text }: { text: string }) {
       <span
         role="tooltip"
         className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 scale-95 opacity-0 transition-all duration-150 group-hover/tip:scale-100 group-hover/tip:opacity-100"
+        style={{ textTransform: 'none', letterSpacing: 'normal', fontWeight: 400 }}
       >
-        <span className="block w-64 rounded-md bg-[#1E293B] px-3 py-2 text-[11px] leading-[1.5] font-normal text-[#E2E8F0] shadow-lg ring-1 ring-white/10">
+        <span className="block w-72 rounded-lg bg-[#1E293B] px-3.5 py-2.5 text-[11px] leading-[1.6] text-[#E2E8F0] shadow-xl ring-1 ring-white/10 normal-case tracking-normal font-normal">
           {text}
         </span>
         <span className="mx-auto block h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-[#1E293B]" />
