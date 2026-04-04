@@ -58,7 +58,7 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(22);
       pdf.setTextColor(...dark);
-      pdf.text('CerebrasLens', m + 14, y + 18);
+      pdf.text('Model Lens', m + 14, y + 18);
 
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(9);
@@ -394,7 +394,7 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(7);
         pdf.setTextColor(...light);
-        pdf.text('CerebrasLens — Powered by Cerebras Inference', m, 825);
+        pdf.text('Model Lens — Powered by Cerebras Inference', m, 825);
         pdf.text(`Page ${pageNum} of ${totalPages}`, pw - m, 825, { align: 'right' });
         pdf.text(`Built by Arun Muralitharan`, pw / 2, 825, { align: 'center' });
       };
@@ -405,7 +405,7 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
       }
 
       const safeName = modelName.replace(/[^a-zA-Z0-9_-]/g, '_');
-      pdf.save(`CerebrasLens_${safeName}_Report.pdf`);
+      pdf.save(`ModelLens_${safeName}_Report.pdf`);
     } catch (err) {
       console.error('PDF export failed:', err);
     } finally {

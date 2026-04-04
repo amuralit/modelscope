@@ -249,7 +249,7 @@ export default function InferenceFlow(props: InferenceFlowProps) {
             onClick={async () => {
               setLiveLoading(true);
               try {
-                const result = await runLiveInference(SAMPLE_PROMPT);
+                const result = await runLiveInference(SAMPLE_PROMPT, props.modelName);
                 setLiveResult(result);
               } catch { /* ignore */ }
               setLiveLoading(false);

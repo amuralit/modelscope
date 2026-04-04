@@ -4,7 +4,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const CEREBRAS_API = "https://api.cerebras.ai/v1";
-const MODEL = "llama3.1-8b";
+const DEFAULT_MODEL = "llama3.1-8b";
+
+/** Available Cerebras models — try to match the evaluated model */
+const CEREBRAS_MODELS = ["llama3.1-8b", "qwen-3-235b-a22b-instruct-2507", "gpt-oss-120b", "zai-glm-4.7"];
+
+function matchCerebrasModel(modelId: string): string {
+  const lower = modelId.toLowerCase().replace(/[^a-z0-9]/g, '');
+  // Try exact-ish matches
+  for (const cm of CEREBRAS_MODELS) {
+    const cmLower = cm.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (lower.includes(cmLower) || cmLower.includes(lower)) return cm;
+  }
+  // Try family matches
+  if (lower.includes('llama')) return 'llama3.1-8b';
+  if (lower.includes('qwen')) return 'qwen-3-235b-a22b-instruct-2507';
+  if (lower.includes('glm')) return 'zai-glm-4.7';
+  return DEFAULT_MODEL;
+}
 
 function getKey(): string {
   const key = process.env.CEREBRAS_API_KEY;
@@ -51,6 +68,8 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const prompt = body.prompt ?? "What is the capital of France?";
         const maxTokens = body.max_tokens ?? 50;
+        const requestedModel = body.model_id ?? "";
+        const model = matchCerebrasModel(requestedModel);
 
         const startTime = Date.now();
         const res = await fetch(`${CEREBRAS_API}/chat/completions`, {
@@ -60,7 +79,7 @@ export async function POST(req: NextRequest) {
             Authorization: `Bearer ${getKey()}`,
           },
           body: JSON.stringify({
-            model: MODEL,
+            model,
             messages: [{ role: "user", content: prompt }],
             max_tokens: maxTokens,
           }),

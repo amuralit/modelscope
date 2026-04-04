@@ -43,11 +43,11 @@ export interface LiveInferenceResult {
   tokens_per_second: number;
 }
 
-export async function runLiveInference(prompt?: string): Promise<LiveInferenceResult> {
+export async function runLiveInference(prompt?: string, modelId?: string): Promise<LiveInferenceResult> {
   const res = await fetch("/api/cerebras?action=live_inference", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: prompt ?? "What is the capital of France?", max_tokens: 50 }),
+    body: JSON.stringify({ prompt: prompt ?? "What is the capital of France?", max_tokens: 50, model_id: modelId }),
   });
   if (!res.ok) throw new Error(`Live inference failed: ${res.status}`);
   return res.json();

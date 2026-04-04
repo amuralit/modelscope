@@ -62,7 +62,7 @@ export default function Sidebar() {
           </svg>
         </div>
         <div>
-          <span className="text-base font-bold text-[#0F172A]">CerebrasLens</span>
+          <span className="text-base font-bold text-[#0F172A]">ModelLens</span>
           <span className="block text-[9px] font-medium text-[#94A3B8] leading-none">by Arun Muralitharan</span>
         </div>
       </div>
