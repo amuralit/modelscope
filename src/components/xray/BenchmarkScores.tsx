@@ -182,23 +182,20 @@ export default function BenchmarkScores({ modelCard, modelType }: BenchmarkScore
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#6366F1]">
                 {cat}
               </p>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {entries.map((b) => (
-                  <div key={b.name} className="flex items-center gap-3">
-                    <span className="w-28 shrink-0 text-xs font-medium text-[#0F172A]">{b.name}</span>
-                    <div className="flex-1 h-5 rounded-full bg-[#F1F5F9] overflow-hidden relative">
-                      {/* Threshold markers */}
-                      <div className="absolute left-[40%] top-0 h-full w-px bg-[#E2E8F0]" />
-                      <div className="absolute left-[70%] top-0 h-full w-px bg-[#E2E8F0]" />
-                      {/* Fill bar */}
+                  <div key={b.name} className="grid items-center gap-3" style={{ gridTemplateColumns: '100px 1fr 70px' }}>
+                    <span className="text-xs font-medium text-[#0F172A] truncate">{b.name}</span>
+                    <div className="h-6 rounded-md bg-[#F1F5F9] overflow-hidden relative">
+                      <div className="absolute left-[40%] top-0 h-full w-px bg-[#E2E8F0] z-[1]" />
+                      <div className="absolute left-[70%] top-0 h-full w-px bg-[#E2E8F0] z-[1]" />
                       <div
-                        className={`h-full rounded-full ${scoreBg(b.normalized)} transition-all duration-500`}
-                        style={{ width: `${Math.max(2, b.normalized)}%`, opacity: 0.8 }}
+                        className={`h-full rounded-md ${scoreBg(b.normalized)}`}
+                        style={{ width: `${Math.max(3, b.normalized)}%`, opacity: 0.75 }}
                       />
                     </div>
-                    <span className="w-16 text-right font-mono text-xs font-semibold" style={{ color: scoreColor(b.normalized) }}>
-                      {b.score}
-                      <span className="text-[#94A3B8] font-normal"> / {b.category === 'Instruction' && b.name === 'MT-Bench' ? '10' : '100'}</span>
+                    <span className="text-right font-mono text-sm font-bold whitespace-nowrap" style={{ color: scoreColor(b.normalized) }}>
+                      {b.score}<span className="text-[10px] text-[#94A3B8] font-normal"> / 100</span>
                     </span>
                   </div>
                 ))}

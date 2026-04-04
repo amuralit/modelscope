@@ -21,7 +21,15 @@ export async function runArchitectureScan(
   const hiddenSize = config.hidden_size ?? 0;
   const intermediateSize = config.intermediate_size ?? 0;
   const vocabSize = config.vocab_size ?? 256000; // sensible default
-  const contextWindow = config.max_position_embeddings ?? 8192; // sensible default
+  // Context window: check config, then common defaults by model family
+  const rawContext = config.max_position_embeddings;
+  const typeLower_ = (config.model_type ?? '').toLowerCase();
+  const defaultContext = typeLower_.includes('gemma') ? 131072
+    : typeLower_.includes('llama') ? 131072
+    : typeLower_.includes('qwen') ? 40960
+    : typeLower_.includes('mistral') ? 32768
+    : 8192;
+  const contextWindow = (rawContext && rawContext > 0) ? rawContext : defaultContext;
   const architectures = config.architectures ?? [];
 
   // ---- MoE detection -------------------------------------------------------

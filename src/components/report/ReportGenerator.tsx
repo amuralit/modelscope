@@ -90,7 +90,12 @@ ${data.breakdown ? Object.entries(data.breakdown).map(([k, v]) => `  ${k}: ${v.s
 
 ---
 
-Write a structured report with EXACTLY these sections. Be specific with numbers and business insights. Each bullet point should reference actual scores and data:
+Write a structured report with EXACTLY these sections. IMPORTANT FORMATTING RULES:
+- Each bullet point MUST be on its own line starting with "- "
+- Do NOT combine multiple bullets on one line
+- Be specific with numbers and business insights
+- Each bullet should reference actual scores and data
+- Write in concise, data-driven AWS 6-pager style (no fluff, every sentence earns its place)
 
 ## Executive Summary
 (3-4 sentences summarizing the verdict, key opportunity, and recommended action. Include the composite score and the most important finding.)
@@ -108,6 +113,23 @@ Write a structured report with EXACTLY these sections. Be specific with numbers 
 (2-3 sentences with a clear GO/EVALUATE/SKIP rationale. If EVALUATE, specify what additional data points would tip the decision. If GO, suggest positioning strategy.)`;
 }
 
+/** Split text that may have inline bullets (• or - ) into separate lines */
+function splitInlineBullets(text: string): string[] {
+  // First split by newlines
+  let lines = text.split('\n');
+  // Then split any line that has inline bullets (• separator)
+  const expanded: string[] = [];
+  for (const line of lines) {
+    if (line.includes('• ')) {
+      const parts = line.split('• ').map(s => s.trim()).filter(Boolean);
+      parts.forEach(p => expanded.push('- ' + p.replace(/^[-*]\s*/, '')));
+    } else {
+      expanded.push(line);
+    }
+  }
+  return expanded;
+}
+
 function parseReport(text: string): ParsedReport {
   const result: ParsedReport = {
     executiveSummary: '',
@@ -117,68 +139,52 @@ function parseReport(text: string): ParsedReport {
     recommendation: '',
   };
 
-  // Split into sections by heading patterns
-  const lines = text.split('\n');
+  const lines = splitInlineBullets(text);
   let currentSection = '';
 
   for (const line of lines) {
     const lower = line.toLowerCase().replace(/[#*]/g, '').trim();
 
     // Detect section headings
-    if (lower.includes('executive summary')) {
-      currentSection = 'executive';
-      continue;
-    } else if (lower.includes('key strength') || lower.includes('strengths')) {
-      currentSection = 'strengths';
-      continue;
-    } else if (
-      lower.includes('key risk') ||
-      lower.includes('risks') ||
-      lower.includes('concerns')
-    ) {
-      currentSection = 'risks';
-      continue;
-    } else if (lower.includes('deployment readiness') || lower.includes('wse')) {
-      currentSection = 'readiness';
-      continue;
-    } else if (lower.includes('recommendation')) {
-      currentSection = 'recommendation';
-      continue;
-    }
+    if (lower.includes('executive summary')) { currentSection = 'executive'; continue; }
+    if (lower.includes('key strength') || (lower.includes('strength') && !lower.includes('shortcoming'))) { currentSection = 'strengths'; continue; }
+    if (lower.includes('key risk') || lower.includes('risks') || lower.includes('concerns')) { currentSection = 'risks'; continue; }
+    if (lower.includes('deployment readiness') || lower.includes('wse')) { currentSection = 'readiness'; continue; }
+    if (lower.includes('recommendation')) { currentSection = 'recommendation'; continue; }
 
     const trimmed = line.trim();
     if (!trimmed || trimmed === '---') continue;
 
-    const bulletContent = trimmed.replace(/^[-*]\s*/, '');
+    const isBullet = trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('•');
+    const bulletContent = trimmed.replace(/^[-*•]\s*/, '').trim();
 
     switch (currentSection) {
       case 'executive':
-        result.executiveSummary += (result.executiveSummary ? ' ' : '') + trimmed;
+        result.executiveSummary += (result.executiveSummary ? ' ' : '') + trimmed.replace(/^[-*•]\s*/, '');
         break;
       case 'strengths':
-        if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+        if (isBullet) {
           result.strengths.push(bulletContent);
-        } else if (result.strengths.length > 0) {
-          // continuation of previous bullet
-          result.strengths[result.strengths.length - 1] += ' ' + trimmed;
-        } else {
-          result.strengths.push(trimmed);
+        } else if (bulletContent && result.strengths.length > 0) {
+          result.strengths[result.strengths.length - 1] += ' ' + bulletContent;
+        } else if (bulletContent) {
+          result.strengths.push(bulletContent);
         }
         break;
       case 'risks':
-        if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+        if (isBullet) {
           result.risks.push(bulletContent);
-        } else if (result.risks.length > 0) {
-          result.risks[result.risks.length - 1] += ' ' + trimmed;
-        } else {
-          result.risks.push(trimmed);
+        } else if (bulletContent && result.risks.length > 0) {
+          result.risks[result.risks.length - 1] += ' ' + bulletContent;
+        } else if (bulletContent) {
+          result.risks.push(bulletContent);
         }
         break;
       case 'readiness':
-        result.readiness += (result.readiness ? ' ' : '') + trimmed;
+        result.readiness += (result.readiness ? ' ' : '') + trimmed.replace(/^[-*•]\s*/, '');
         break;
       case 'recommendation':
-        result.recommendation += (result.recommendation ? ' ' : '') + trimmed;
+        result.recommendation += (result.recommendation ? ' ' : '') + trimmed.replace(/^[-*•]\s*/, '');
         break;
     }
   }

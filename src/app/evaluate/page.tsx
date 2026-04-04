@@ -15,6 +15,7 @@ import AgenticRadar from '@/components/xray/AgenticRadar';
 import ReportGenerator from '@/components/report/ReportGenerator';
 import PerformanceCost from '@/components/xray/PerformanceCost';
 import BenchmarkScores from '@/components/xray/BenchmarkScores';
+import PDFExportButton from '@/components/report/PDFExport';
 import Badge from '@/components/shared/Badge';
 
 // --- API ---
@@ -728,14 +729,17 @@ function EvaluatePageInner() {
             {/* Row 6: Demand Timeline (full width) */}
             {results.demandSignal && <DemandTimeline demand={results.demandSignal} />}
 
-            {/* Row 7: Report Generator + PDF Export */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Row 7: Report Generator + Export */}
+            <div className="space-y-6">
               <ReportGenerator analysisData={analysisData} modelName={modelId ?? 'Unknown'} />
-              <PDFExport
-                modelName={modelId ?? 'Unknown'}
-                compositeScore={compositeScore}
-                verdictInfo={verdictInfo}
-              />
+              <div className="flex items-center gap-3 justify-end">
+                <PDFExportButton
+                  modelName={modelId ?? 'Unknown'}
+                  compositeScore={compositeScore}
+                  verdictInfo={verdictInfo}
+                  analysisData={analysisData}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -994,7 +998,7 @@ function ModelIdentityCard({
                   <>
                     <span className="text-[#CBD5E1]" aria-hidden="true">&middot;</span>
                     <span className="text-xs text-[#94A3B8]">
-                      <span className="font-mono text-[#475569]">{(modelInfo.downloadsLastMonth ?? 0).toLocaleString()}</span> downloads/mo
+                      <span className="font-mono text-[#475569]">{(modelInfo.downloadsLastMonth ?? modelInfo.downloads ?? 0).toLocaleString()}</span> downloads/mo
                     </span>
                     <span className="text-[#CBD5E1]" aria-hidden="true">&middot;</span>
                     <span className="text-xs text-[#94A3B8]">
@@ -1331,107 +1335,4 @@ function DemandTimeline({ demand }: { demand: DemandSignalResult }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// PDF Export (placeholder -- generates a text summary the user can copy)
-// ---------------------------------------------------------------------------
-
-function PDFExport({
-  modelName,
-  compositeScore,
-  verdictInfo,
-}: {
-  modelName: string;
-  compositeScore: CompositeScore;
-  verdictInfo: { verdict: string; label: string; description: string };
-}) {
-  const [copied, setCopied] = useState(false);
-
-  const textSummary = useMemo(() => {
-    const lines = [
-      `ModelScope X-ray Report`,
-      `Model: ${modelName}`,
-      `Composite Score: ${compositeScore.score}/100`,
-      `Verdict: ${compositeScore.verdict} -- ${verdictInfo.label}`,
-      ``,
-      `Score Breakdown:`,
-      ...Object.entries(compositeScore.breakdown).map(
-        ([key, val]) =>
-          `  ${key}: ${val.score}/100 (weight ${Math.round(val.weight * 100)}%, contribution ${val.weighted.toFixed(1)})`,
-      ),
-      ``,
-      `${verdictInfo.description}`,
-    ];
-    return lines.join('\n');
-  }, [modelName, compositeScore, verdictInfo]);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(textSummary);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // noop
-    }
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([textSummary], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `modelscope-${modelName.replace(/\//g, '-')}-report.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-6">
-      <h3 className="mb-4 text-sm font-semibold tracking-wider text-[#475569] uppercase">
-        Export Report
-      </h3>
-
-      <p className="mb-4 text-sm text-[#94A3B8]">
-        Download a plaintext summary of the X-ray analysis results.
-      </p>
-
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={handleDownload}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#6366F1] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5558E6]"
-        >
-          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
-            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
-          </svg>
-          Download .txt
-        </button>
-        <button
-          onClick={handleCopy}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#E2E8F0] px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A]"
-        >
-          {copied ? (
-            <>
-              <svg className="h-4 w-4 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-              </svg>
-              Copied!
-            </>
-          ) : (
-            <>
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" />
-                <path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.44A1.5 1.5 0 008.378 6H4.5z" />
-              </svg>
-              Copy to clipboard
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Preview */}
-      <div className="mt-4 max-h-48 overflow-auto rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-        <pre className="whitespace-pre-wrap font-mono text-xs text-[#475569]">{textSummary}</pre>
-      </div>
-    </div>
-  );
-}
+// (PDFExport is now imported from @/components/report/PDFExport as PDFExportButton)

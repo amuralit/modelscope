@@ -1,102 +1,284 @@
 'use client';
 
 import { useState } from 'react';
-import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-interface PDFExportProps {
-  contentRef: React.RefObject<HTMLDivElement | null>;
-  modelName: string;
+interface ScoreBreakdown {
+  score: number;
+  weight: number;
+  weighted: number;
 }
 
-export default function PDFExport({ contentRef, modelName }: PDFExportProps) {
+interface PDFExportProps {
+  modelName: string;
+  compositeScore: { score: number; verdict: string; breakdown: Record<string, ScoreBreakdown> } | null;
+  verdictInfo: { verdict: string; label: string; description: string } | null;
+  analysisData?: Record<string, any>;
+  aiSummary?: string | null;
+}
+
+export default function PDFExport({ modelName, compositeScore, verdictInfo, analysisData, aiSummary }: PDFExportProps) {
   const [exporting, setExporting] = useState(false);
 
-  async function handleExport() {
-    if (!contentRef.current) return;
-
+  function handleExport() {
+    if (!compositeScore) return;
     setExporting(true);
 
     try {
-      const canvas = await html2canvas(contentRef.current, {
-        backgroundColor: '#F8FAFC',
-        scale: 2,
-        useCORS: true,
-        logging: false,
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pw = pdf.internal.pageSize.getWidth();
+      const m = 50; // margin
+      const cw = pw - m * 2; // content width
+      let y = m;
+
+      const addPage = () => { pdf.addPage(); y = m; };
+      const checkPage = (need: number) => { if (y + need > 790) addPage(); };
+
+      // Colors
+      const indigo = [99, 102, 241] as [number, number, number];
+      const dark = [15, 23, 42] as [number, number, number];
+      const mid = [71, 85, 105] as [number, number, number];
+      const light = [148, 163, 184] as [number, number, number];
+      const green = [5, 150, 105] as [number, number, number];
+      const amber = [217, 119, 6] as [number, number, number];
+      const red = [220, 38, 38] as [number, number, number];
+
+      const scoreColor = (s: number) => s >= 70 ? green : s >= 40 ? amber : red;
+
+      // ================================================================
+      // HEADER
+      // ================================================================
+      pdf.setFillColor(248, 250, 252);
+      pdf.rect(0, 0, pw, 120, 'F');
+
+      // Logo bar
+      pdf.setFillColor(...indigo);
+      pdf.rect(m, m, 4, 50, 'F');
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(22);
+      pdf.setTextColor(...dark);
+      pdf.text('ModelScope', m + 14, y + 18);
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.setTextColor(...light);
+      pdf.text('Model Inference Readiness Report', m + 14, y + 32);
+
+      // Date
+      pdf.setFontSize(8);
+      pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, pw - m, y + 10, { align: 'right' });
+      pdf.text(`Confidential — For internal use only`, pw - m, y + 22, { align: 'right' });
+
+      // Model name
+      y += 55;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.setTextColor(...dark);
+      pdf.text(modelName.replace(/\//g, ' / '), m + 14, y);
+
+      // Verdict badge
+      const vc = compositeScore.verdict === 'GO' ? green : compositeScore.verdict === 'SKIP' ? red : amber;
+      const badgeText = `${compositeScore.verdict} — ${verdictInfo?.label ?? ''}`;
+      pdf.setFillColor(...vc);
+      const badgeW = pdf.getTextWidth(badgeText) * 0.8 + 16;
+      pdf.roundedRect(pw - m - badgeW, y - 12, badgeW, 18, 3, 3, 'F');
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(9);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(badgeText, pw - m - badgeW + 8, y + 1);
+
+      y += 25;
+
+      // ================================================================
+      // DIVIDER
+      // ================================================================
+      pdf.setDrawColor(226, 232, 240);
+      pdf.line(m, y, pw - m, y);
+      y += 20;
+
+      // ================================================================
+      // COMPOSITE SCORE + BREAKDOWN
+      // ================================================================
+      checkPage(120);
+
+      // Score circle
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(36);
+      pdf.setTextColor(...scoreColor(compositeScore.score));
+      pdf.text(`${compositeScore.score}`, m + 30, y + 30);
+      pdf.setFontSize(10);
+      pdf.setTextColor(...light);
+      pdf.text('/ 100', m + 75, y + 30);
+
+      pdf.setFontSize(8);
+      pdf.setTextColor(...mid);
+      pdf.text('COMPOSITE SCORE', m, y - 3);
+
+      // Breakdown table
+      const bx = m + 130;
+      const entries = Object.entries(compositeScore.breakdown);
+      const colW = (cw - 130) / Math.min(entries.length, 7);
+
+      pdf.setFontSize(8);
+      pdf.setTextColor(...mid);
+      pdf.text('MODULE SCORES', bx, y - 3);
+
+      entries.forEach(([key, val], i) => {
+        const x = bx + i * colW;
+        const sc = scoreColor(val.score);
+
+        // Score
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(14);
+        pdf.setTextColor(...sc);
+        pdf.text(`${val.score}`, x + 2, y + 15);
+
+        // Label
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(6);
+        pdf.setTextColor(...light);
+        const label = key.replace(/([A-Z])/g, ' $1').trim().toUpperCase();
+        pdf.text(label, x + 2, y + 25);
+
+        // Weight
+        pdf.setFontSize(5);
+        pdf.text(`${Math.round(val.weight * 100)}%`, x + 2, y + 32);
       });
 
-      const imgData = canvas.toDataURL('image/png');
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
+      y += 50;
 
-      // A4 dimensions in points (72 dpi)
-      const pdfWidth = 595.28;
-      const pdfHeight = 841.89;
-      const margin = 40;
+      // ================================================================
+      // SECTION HELPER
+      // ================================================================
+      const sectionTitle = (title: string, color: [number, number, number]) => {
+        checkPage(30);
+        pdf.setFillColor(...color);
+        pdf.rect(m, y, 3, 14, 'F');
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(...dark);
+        pdf.text(title.toUpperCase(), m + 10, y + 11);
+        y += 22;
+      };
 
-      const contentWidth = pdfWidth - margin * 2;
-      const scaleFactor = contentWidth / imgWidth;
-      const scaledHeight = imgHeight * scaleFactor;
+      const addParagraph = (text: string) => {
+        checkPage(40);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.setTextColor(...mid);
+        const lines = pdf.splitTextToSize(text.replace(/\*\*/g, ''), cw - 10);
+        pdf.text(lines, m + 10, y);
+        y += lines.length * 13 + 8;
+      };
 
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'pt',
-        format: 'a4',
-      });
+      const addBullet = (text: string) => {
+        checkPage(30);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.setTextColor(...mid);
+        const clean = text.replace(/\*\*/g, '');
+        const lines = pdf.splitTextToSize(clean, cw - 22);
+        pdf.setFillColor(...indigo);
+        pdf.circle(m + 13, y + 3, 2, 'F');
+        pdf.text(lines, m + 22, y + 6);
+        y += lines.length * 13 + 6;
+      };
 
-      // If content fits on one page
-      if (scaledHeight <= pdfHeight - margin * 2) {
-        pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, scaledHeight);
-      } else {
-        // Multi-page: slice the canvas into page-sized chunks
-        const pageContentHeight = pdfHeight - margin * 2;
-        const sourcePageHeight = pageContentHeight / scaleFactor;
-        const totalPages = Math.ceil(imgHeight / sourcePageHeight);
+      // ================================================================
+      // ARCHITECTURE SUMMARY
+      // ================================================================
+      const arch = analysisData?.architecture as Record<string, any> | undefined;
+      if (arch) {
+        pdf.setDrawColor(226, 232, 240);
+        pdf.line(m, y, pw - m, y);
+        y += 15;
 
-        for (let page = 0; page < totalPages; page++) {
-          if (page > 0) {
-            pdf.addPage();
+        sectionTitle('Architecture Summary', indigo);
+
+        const specs = [
+          ['Parameters', arch.parameterCount ? `${(arch.parameterCount / 1e9).toFixed(1)}B` : '—'],
+          ['Architecture', `${arch.isMoE ? 'MoE' : 'Dense'} (${arch.architectureFamily ?? '?'})`],
+          ['Attention', arch.attentionVariant ?? '—'],
+          ['Layers', String(arch.numLayers ?? '—')],
+          ['Context', arch.contextWindow ? `${(arch.contextWindow / 1000).toFixed(0)}K` : '—'],
+          ['Hidden', String(arch.hiddenSize ?? '—')],
+        ];
+
+        specs.forEach(([label, value], i) => {
+          const col = i % 3;
+          const row = Math.floor(i / 3);
+          const x = m + 10 + col * (cw / 3);
+          const sy = y + row * 28;
+
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(7);
+          pdf.setTextColor(...light);
+          pdf.text(label.toUpperCase(), x, sy);
+
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(11);
+          pdf.setTextColor(...dark);
+          pdf.text(value, x, sy + 13);
+        });
+
+        y += Math.ceil(specs.length / 3) * 28 + 10;
+      }
+
+      // ================================================================
+      // AI SUMMARY SECTIONS
+      // ================================================================
+      if (aiSummary) {
+        const lines = aiSummary.split('\n');
+        let section = '';
+
+        pdf.setDrawColor(226, 232, 240);
+        pdf.line(m, y, pw - m, y);
+        y += 15;
+
+        for (const line of lines) {
+          const lower = line.toLowerCase().replace(/[#*]/g, '').trim();
+          if (!lower) continue;
+
+          if (lower.includes('executive summary')) { sectionTitle('Executive Summary', indigo); section = 'para'; continue; }
+          if (lower.includes('key strength') || lower.includes('strengths')) { sectionTitle('Key Strengths', green); section = 'bullet'; continue; }
+          if (lower.includes('key risk') || lower.includes('concerns') || lower.includes('risks')) { sectionTitle('Key Risks & Concerns', amber); section = 'bullet'; continue; }
+          if (lower.includes('deployment readiness') || lower.includes('wse')) { sectionTitle('WSE Deployment Readiness', indigo); section = 'para'; continue; }
+          if (lower.includes('recommendation')) { sectionTitle('Recommendation', green); section = 'para'; continue; }
+
+          const trimmed = line.trim();
+          if (!trimmed || trimmed === '---') continue;
+
+          if (section === 'bullet' && (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('•'))) {
+            addBullet(trimmed.replace(/^[-*•]\s*/, ''));
+          } else {
+            addParagraph(trimmed.replace(/^[-*•]\s*/, ''));
           }
-
-          // Create a temporary canvas for this page slice
-          const pageCanvas = document.createElement('canvas');
-          pageCanvas.width = imgWidth;
-          const sliceHeight = Math.min(
-            sourcePageHeight,
-            imgHeight - page * sourcePageHeight,
-          );
-          pageCanvas.height = sliceHeight;
-
-          const ctx = pageCanvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(
-              canvas,
-              0,
-              page * sourcePageHeight,
-              imgWidth,
-              sliceHeight,
-              0,
-              0,
-              imgWidth,
-              sliceHeight,
-            );
-          }
-
-          const pageImgData = pageCanvas.toDataURL('image/png');
-          const pageScaledHeight = sliceHeight * scaleFactor;
-          pdf.addImage(
-            pageImgData,
-            'PNG',
-            margin,
-            margin,
-            contentWidth,
-            pageScaledHeight,
-          );
         }
       }
 
+      // ================================================================
+      // FOOTER
+      // ================================================================
+      const addFooter = (pageNum: number, totalPages: number) => {
+        pdf.setPage(pageNum);
+        pdf.setDrawColor(226, 232, 240);
+        pdf.line(m, 810, pw - m, 810);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(7);
+        pdf.setTextColor(...light);
+        pdf.text('ModelScope — Powered by Cerebras Inference', m, 825);
+        pdf.text(`Page ${pageNum} of ${totalPages}`, pw - m, 825, { align: 'right' });
+        pdf.text(`Built by Arun Muralitharan`, pw / 2, 825, { align: 'center' });
+      };
+
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        addFooter(i, totalPages);
+      }
+
       const safeName = modelName.replace(/[^a-zA-Z0-9_-]/g, '_');
-      pdf.save(`ModelScope-${safeName}-report.pdf`);
+      pdf.save(`ModelScope_${safeName}_Report.pdf`);
     } catch (err) {
       console.error('PDF export failed:', err);
     } finally {
@@ -107,45 +289,24 @@ export default function PDFExport({ contentRef, modelName }: PDFExportProps) {
   return (
     <button
       onClick={handleExport}
-      disabled={exporting}
-      className="inline-flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#FFFFFF] px-4 py-2 text-sm font-medium text-[#475569] transition-colors hover:border-[#CBD5E1] hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-50"
+      disabled={exporting || !compositeScore}
+      className="inline-flex items-center gap-2 rounded-lg bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4F46E5] disabled:cursor-not-allowed disabled:opacity-50"
     >
       {exporting ? (
         <>
-          <svg
-            className="h-4 w-4 animate-spin"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="3"
-              className="opacity-25"
-            />
-            <path
-              d="M4 12a8 8 0 018-8"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              className="opacity-75"
-            />
+          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+            <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" />
           </svg>
-          Exporting...
+          Generating PDF...
         </>
       ) : (
         <>
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
             <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
           </svg>
-          Export as PDF
+          Download PDF Report
         </>
       )}
     </button>
