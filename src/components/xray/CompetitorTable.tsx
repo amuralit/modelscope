@@ -1,5 +1,7 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
+
 interface Provider {
   name: string;
   serves_model: boolean;
@@ -49,7 +51,7 @@ export default function CompetitorTable({ gapResult }: CompetitorTableProps) {
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#0F172A]">
-          Competitive Landscape
+          Competitive Landscape <InfoTip text="Which inference providers already serve this model and where Cerebras has a speed or first-mover advantage." />
         </h3>
         <div className="flex items-center gap-3">
           {first_mover && (

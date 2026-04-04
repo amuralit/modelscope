@@ -1,5 +1,7 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
+
 interface DemandResult {
   downloads_total: number;
   downloads_30d: number;
@@ -139,7 +141,7 @@ export default function DemandTimeline({ demandResult }: DemandTimelineProps) {
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#0F172A]">
-          Demand Signals
+          Demand Signals <InfoTip text="Community demand indicators — download volume, lab reputation, license compatibility, and recency." />
         </h3>
         <div className="flex items-center gap-1.5">
           <span className="font-mono text-lg font-semibold text-[#0F172A]">

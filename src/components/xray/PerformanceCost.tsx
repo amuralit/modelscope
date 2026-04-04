@@ -1,5 +1,7 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
+
 interface PerformanceCostProps {
   parameterCount: number;
   activeParameters?: number;
@@ -83,15 +85,17 @@ function StatCard({
   label,
   value,
   subtitle,
+  tip,
 }: {
   label: string;
   value: string;
   subtitle?: string;
+  tip?: string;
 }) {
   return (
     <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
-        {label}
+        {label}{tip && <InfoTip text={tip} />}
       </p>
       <p className="font-mono text-lg font-bold text-[#0F172A]">{value}</p>
       {subtitle && (
@@ -252,7 +256,7 @@ export default function PerformanceCost({
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-bold text-[#0F172A]">
-            Performance &amp; Cost Estimates
+            Performance &amp; Cost Estimates <InfoTip text="Estimated inference performance and cost on Cerebras WSE-3 vs typical GPU cloud providers." />
           </h3>
           <p className="mt-0.5 text-[11px] text-[#94A3B8]">
             {isMoE && activeParameters
@@ -280,11 +284,13 @@ export default function PerformanceCost({
             label="TTFT"
             value={fmtMs(ttftMs)}
             subtitle="Time to first token"
+            tip="Time to First Token — how long before the first word appears. Critical for interactive applications."
           />
           <StatCard
             label="Decode Speed"
             value={`${fmtNum(decodeTps)} tok/s`}
             subtitle="Output generation"
+            tip="Output generation speed in tokens per second on Cerebras WSE-3."
           />
           <StatCard
             label="Prefill Throughput"

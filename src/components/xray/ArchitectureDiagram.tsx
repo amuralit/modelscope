@@ -1,5 +1,7 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
+
 interface ArchOverviewProps {
   arch: {
     modelType: string;
@@ -52,15 +54,16 @@ function formatContext(tokens: number): string {
   return `${tokens}`;
 }
 
-function Stat({ label, value, sub, highlight }: {
+function Stat({ label, value, sub, highlight, tip }: {
   label: string;
   value: string;
   sub?: string;
   highlight?: boolean;
+  tip?: string;
 }) {
   return (
     <div className={`rounded-lg border p-3 ${highlight ? 'border-[#6366F1]/30 bg-[#6366F1]/5' : 'border-[#E2E8F0] bg-[#F8FAFC]'}`}>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">{label}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">{label}{tip && <InfoTip text={tip} />}</p>
       <p className={`font-mono text-lg font-bold ${highlight ? 'text-[#6366F1]' : 'text-[#0F172A]'}`}>{value}</p>
       {sub && <p className="text-[10px] text-[#94A3B8]">{sub}</p>}
     </div>
@@ -91,7 +94,7 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
     <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
       {/* Header */}
       <div className="mb-4 flex items-start justify-between">
-        <h3 className="text-sm font-semibold text-[#0F172A]">Architecture Overview</h3>
+        <h3 className="text-sm font-semibold text-[#0F172A]">Architecture Overview <InfoTip text="Deep analysis of model architecture — layers, attention mechanism, parameter count, memory footprint, and estimated inference speeds on Cerebras WSE-3." /></h3>
         <div className="flex gap-1.5">
           <Badge
             text={arch.isMoE ? 'Mixture of Experts' : 'Dense'}
@@ -109,22 +112,26 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
           value={formatParams(arch.parameterCount)}
           sub={arch.isMoE && arch.activeParameters ? `${formatParams(arch.activeParameters)} active` : undefined}
           highlight
+          tip="Total number of trainable parameters. For MoE models, 'active' shows parameters used per token."
         />
         <Stat
           label="Context Window"
           value={`${formatContext(arch.contextWindow)} tokens`}
           sub={`KV cache: ${formatBytes(kvCachePerToken)}/token`}
+          tip="Maximum number of tokens the model can process in a single request."
         />
         <Stat
           label="Vocabulary"
           value={formatParams(arch.vocabSize)}
           sub={`Embedding: ${formatBytes(arch.vocabSize * arch.hiddenSize * 2)}`}
+          tip="Number of unique tokens in the model's vocabulary. Larger vocab = better multilingual support."
         />
         {arch.isMoE && (
           <Stat
             label="Experts"
             value={`${arch.numExperts} total`}
             sub={`${arch.numExpertsPerTok} active per token`}
+            tip="In MoE models, only a subset of experts activate per token, reducing compute while maintaining capacity."
           />
         )}
       </div>
@@ -155,11 +162,13 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
           value={`${(estimatedTps ?? 0).toLocaleString()} tok/s`}
           sub="Cerebras WSE-3"
           highlight
+          tip="Estimated output generation speed on a single Cerebras WSE-3 wafer. Based on model size class."
         />
         <Stat
           label="Prefill (est.)"
           value={`${estimatedPrefillTps.toLocaleString()} tok/s`}
           sub="Cerebras WSE-3"
+          tip="Estimated prompt processing speed. Prefill is typically 6-10x faster than decode."
         />
       </div>
 
@@ -169,11 +178,13 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
           label="KV Cache / Token"
           value={formatBytes(kvCachePerToken)}
           sub={`${arch.numLayers} layers × ${arch.numKVHeads} KV heads × ${arch.headDim} dim`}
+          tip="Memory needed to store key/value attention states per token. Grows with context length."
         />
         <Stat
           label="KV Cache @ Max Context"
           value={formatBytes(kvCachePerToken * arch.contextWindow)}
           sub={`${formatContext(arch.contextWindow)} tokens`}
+          tip="Total KV cache memory at maximum context window. A major memory consumer for long-context models."
         />
         {wseFit && (
           <Stat

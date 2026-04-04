@@ -1,5 +1,6 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
 import {
   Radar,
   RadarChart,
@@ -67,7 +68,7 @@ export default function AgenticRadar({ agenticResult }: AgenticRadarProps) {
   return (
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">
-        Agentic Fit Radar
+        Agentic Fit Radar <InfoTip text="Evaluates the model's readiness for AI agent workflows — tool calling, structured output, reasoning, code, and multi-turn dialogue." />
       </h3>
 
       {/* Radar chart */}

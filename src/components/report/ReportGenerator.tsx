@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { generateReport } from '@/lib/api/cerebras';
+import InfoTip from '@/components/shared/InfoTip';
 
 interface AnalysisData {
   modelName?: string;
@@ -32,58 +33,79 @@ interface ParsedReport {
 }
 
 function buildPrompt(data: AnalysisData, modelName: string): string {
-  const sections = [
-    `# ModelScope Analysis Report Request`,
-    ``,
-    `You are a Cerebras product analyst. Generate a concise executive summary for the model **${modelName}** based on the following analysis data.`,
-    ``,
-    `## Composite Score: ${data.compositeScore ?? 'N/A'}/100`,
-    `## Verdict: ${data.verdict ?? 'N/A'}`,
-    ``,
-    `## Module Scores Breakdown:`,
-    data.breakdown
-      ? Object.entries(data.breakdown)
-          .map(
-            ([k, v]) =>
-              `- **${k}**: score=${v.score}, weight=${Math.round(v.weight * 100)}%, weighted=${v.weighted.toFixed(1)}`,
-          )
-          .join('\n')
-      : 'No breakdown available.',
-    ``,
-    `## Architecture Analysis:`,
-    JSON.stringify(data.architecture ?? {}, null, 2),
-    ``,
-    `## WSE Fit Analysis:`,
-    JSON.stringify(data.wseFit ?? {}, null, 2),
-    ``,
-    `## Speed Sensitivity Analysis:`,
-    JSON.stringify(data.speedSensitivity ?? {}, null, 2),
-    ``,
-    `## Agentic Fit Analysis:`,
-    JSON.stringify(data.agenticFit ?? {}, null, 2),
-    ``,
-    `## Competitive Gap Analysis:`,
-    JSON.stringify(data.competitiveGap ?? {}, null, 2),
-    ``,
-    `## Demand Signal Analysis:`,
-    JSON.stringify(data.demandSignal ?? {}, null, 2),
-    ``,
-    `## REAP Potential Analysis:`,
-    JSON.stringify(data.reapPotential ?? {}, null, 2),
-    ``,
-    `---`,
-    ``,
-    `Generate a structured report with these sections:`,
-    `1. **Executive Summary** (2-3 sentences)`,
-    `2. **Key Strengths** (bullet points)`,
-    `3. **Key Risks / Concerns** (bullet points)`,
-    `4. **WSE Deployment Readiness** (1-2 sentences)`,
-    `5. **Recommendation** (clear GO / EVALUATE / SKIP rationale)`,
-    ``,
-    `Be direct and actionable. Focus on what matters for a Cerebras product decision.`,
-  ];
+  const arch = data.architecture as Record<string, any> ?? {};
+  const wse = data.wseFit as Record<string, any> ?? {};
+  const speed = data.speedSensitivity as Record<string, any> ?? {};
+  const agentic = data.agenticFit as Record<string, any> ?? {};
+  const gap = data.competitiveGap as Record<string, any> ?? {};
+  const demand = data.demandSignal as Record<string, any> ?? {};
 
-  return sections.join('\n');
+  const formatB = (n: number) => n >= 1e12 ? `${(n/1e12).toFixed(1)}T` : n >= 1e9 ? `${(n/1e9).toFixed(1)}B` : n >= 1e6 ? `${(n/1e6).toFixed(0)}M` : String(n);
+  const formatGB = (b: number) => `${(b / (1024**3)).toFixed(1)}GB`;
+
+  return `You are an AI Models Product Manager at Cerebras Systems writing a launch readiness report. Be specific with numbers, insightful about competitive positioning, and direct about the business case.
+
+MODEL: ${modelName}
+COMPOSITE SCORE: ${data.compositeScore ?? 'N/A'}/100 — VERDICT: ${data.verdict ?? 'N/A'}
+
+ARCHITECTURE:
+- Type: ${arch.isMoE ? 'Mixture of Experts' : 'Dense Transformer'} (${arch.architectureFamily ?? 'unknown'})
+- Parameters: ${formatB(arch.parameterCount ?? 0)} total${arch.isMoE && arch.activeParameters ? `, ${formatB(arch.activeParameters)} active per token` : ''}
+- Layers: ${arch.numLayers ?? '?'}, Heads: ${arch.numAttentionHeads ?? '?'} (${arch.numKVHeads ?? '?'} KV), Hidden: ${arch.hiddenSize ?? '?'}
+- Attention: ${arch.attentionVariant ?? '?'} (${arch.attentionVariant === 'GQA' ? 'memory-efficient grouped queries' : arch.attentionVariant === 'MQA' ? 'single KV head' : 'standard multi-head'})
+- Context Window: ${arch.contextWindow ? (arch.contextWindow >= 128000 ? '128K tokens' : `${(arch.contextWindow/1000).toFixed(0)}K tokens`) : '?'}
+- Architecture Score: ${arch.score ?? '?'}/100
+
+WSE-3 FIT:
+- FP16 weight memory: ${wse.estimatedWeightBytes ? formatGB(wse.estimatedWeightBytes) : '?'}
+- Fits on single WSE-3 (44GB SRAM): ${wse.fitsInSRAM ? 'YES' : 'NO — requires multi-wafer deployment'}
+- SRAM utilization: ${wse.sramUtilization ? `${(wse.sramUtilization * 100).toFixed(0)}%` : '?'}
+- WSE Fit Score: ${wse.score ?? '?'}/100
+
+SPEED SENSITIVITY:
+- Primary use cases: ${speed.primaryUseCases?.join(', ') ?? '?'}
+- Estimated decode speed on Cerebras: ${speed.estimatedTokensPerSecond ?? '?'} tok/s
+- Speedup vs GPU: ${speed.speedupOverGPU ? `${speed.speedupOverGPU.toFixed(1)}x` : '?'}
+- Speed Score: ${speed.score ?? '?'}/100
+
+AGENTIC CAPABILITIES:
+- Tool calling: ${(agentic.toolUseCapability ?? 0) > 50 ? 'Supported' : 'Not detected'}
+- Structured output: ${(agentic.instructionFollowing ?? 0) > 50 ? 'Supported' : 'Not detected'}
+- Reasoning tokens: ${(agentic.reasoningDepth ?? 0) > 50 ? 'Yes' : 'No'}
+- Agentic Score: ${agentic.score ?? '?'}/100
+
+COMPETITIVE LANDSCAPE:
+- Providers serving this model: ${gap.competitorsOffering?.length ?? 0} (${gap.competitorsOffering?.join(', ') || 'none'})
+- Market gap: ${gap.marketGapSize ?? '?'}
+- First-mover opportunity: ${gap.uniqueAdvantage ? 'YES' : 'No'}
+- Competitive Score: ${gap.score ?? '?'}/100
+
+DEMAND SIGNAL:
+- Downloads: ${demand.downloadsLastMonth?.toLocaleString?.() ?? '?'}
+- Community interest: ${demand.communityInterest ?? '?'}/100
+- Demand Score: ${demand.score ?? '?'}/100
+
+SCORE BREAKDOWN:
+${data.breakdown ? Object.entries(data.breakdown).map(([k, v]) => `  ${k}: ${v.score}/100 (weight ${Math.round(v.weight * 100)}%, contribution ${v.weighted.toFixed(1)})`).join('\n') : 'N/A'}
+
+---
+
+Write a structured report with EXACTLY these sections. Be specific with numbers and business insights. Each bullet point should reference actual scores and data:
+
+## Executive Summary
+(3-4 sentences summarizing the verdict, key opportunity, and recommended action. Include the composite score and the most important finding.)
+
+## Key Strengths
+(4-6 bullet points. Each should cite a specific score or metric. Example: "Architecture score of 92/100 indicates excellent WSE-3 compatibility — GQA attention enables efficient KV cache management")
+
+## Key Risks / Concerns
+(3-5 bullet points. Be specific about what scores are concerning and why. Include business implications.)
+
+## WSE Deployment Readiness
+(2-3 sentences about hardware fit, memory requirements, estimated performance, and any optimization recommendations.)
+
+## Recommendation
+(2-3 sentences with a clear GO/EVALUATE/SKIP rationale. If EVALUATE, specify what additional data points would tip the decision. If GO, suggest positioning strategy.)`;
 }
 
 function parseReport(text: string): ParsedReport {
@@ -322,6 +344,7 @@ export default function ReportGenerator({
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold tracking-wider text-[#475569] uppercase">
           AI Summary
+          <InfoTip text="AI-generated executive summary powered by Cerebras Inference (Llama 3.1-8B). Auto-generates when analysis completes." />
         </h3>
 
         <div className="flex items-center gap-2">
@@ -420,6 +443,22 @@ export default function ReportGenerator({
       {/* Structured report output */}
       {parsed && !loading && (
         <div className="animate-fade-in space-y-4">
+          {/* Inline score summary bar */}
+          {analysisData.breakdown && (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-7">
+              {Object.entries(analysisData.breakdown).map(([key, val]) => {
+                const v = val as { score: number; weight: number; weighted: number };
+                const color = v.score >= 70 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : v.score >= 40 ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-red-600 bg-red-50 border-red-200';
+                return (
+                  <div key={key} className={`rounded-lg border px-2 py-1.5 text-center ${color}`}>
+                    <p className="font-mono text-base font-bold">{v.score}</p>
+                    <p className="text-[9px] font-medium uppercase tracking-wide opacity-70">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {/* Executive Summary */}
           {parsed.executiveSummary && (
             <div className="rounded-lg border border-indigo-200/60 bg-indigo-50/60 p-4">

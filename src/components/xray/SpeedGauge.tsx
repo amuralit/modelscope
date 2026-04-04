@@ -1,5 +1,7 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
+
 interface SpeedResult {
   use_case: string;
   elasticity_score: number;
@@ -72,7 +74,7 @@ export default function SpeedGauge({ speedResult }: SpeedGaugeProps) {
   return (
     <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-5">
       <h3 className="mb-2 text-sm font-semibold text-[#0F172A]">
-        Speed Sensitivity
+        Speed Sensitivity <InfoTip text="How much real-world utility improves as inference speed increases. Higher = speed matters more for this model's use cases." />
       </h3>
 
       {/* Gauge */}

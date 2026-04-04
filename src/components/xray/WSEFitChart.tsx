@@ -1,5 +1,6 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
 import { useState, useMemo } from 'react';
 import {
   BarChart,
@@ -95,7 +96,7 @@ export default function WSEFitChart({ wseFitResult }: WSEFitChartProps) {
   return (
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
       <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">
-        WSE-3 Memory Fit
+        WSE-3 Memory Fit <InfoTip text="How the model's memory footprint compares to WSE-3's 44GB on-chip SRAM at different precision levels." />
       </h3>
 
       {/* Precision selector */}

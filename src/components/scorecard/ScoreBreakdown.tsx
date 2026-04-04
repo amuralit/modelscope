@@ -1,5 +1,7 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
+
 interface BreakdownEntry {
   score: number;
   weight: number;
@@ -39,6 +41,7 @@ export default function ScoreBreakdown({ breakdown }: ScoreBreakdownProps) {
     <div className="rounded-[16px] border border-[#E2E8F0] bg-[#FFFFFF] p-6">
       <h3 className="mb-5 text-sm font-semibold tracking-wider text-[#475569] uppercase">
         Score Breakdown
+        <InfoTip text="Individual module scores and their weighted contribution to the composite. Adjust weights in Settings." />
       </h3>
 
       <div className="space-y-4">

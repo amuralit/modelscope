@@ -1,5 +1,6 @@
 'use client';
 
+import InfoTip from '@/components/shared/InfoTip';
 import { useMemo } from 'react';
 
 interface BenchmarkScoresProps {

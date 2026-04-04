@@ -1,6 +1,7 @@
 'use client';
 
 import type { ModuleStatus } from '@/lib/types/model';
+import InfoTip from '@/components/shared/InfoTip';
 
 interface ProgressPanelProps {
   modules: ModuleStatus[];
@@ -188,6 +189,7 @@ export default function ProgressPanel({ modules }: ProgressPanelProps) {
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#0F172A]">
           Analysis Progress
+          <InfoTip text="All 7 analysis modules run in parallel via Promise.allSettled(). If one fails, others still complete." />
         </h3>
         <span className="text-xs tabular-nums text-[#475569]">
           {completedCount} / {total} modules
