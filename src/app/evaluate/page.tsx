@@ -1163,7 +1163,7 @@ function REAPGrid({ reap, isMoE, arch }: { reap: REAPResult; isMoE: boolean; arc
   // MoE model — show REAP analysis
   return (
     <div className="rounded-[12px] border border-[#E2E8F0] bg-[#FFFFFF] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">REAP Compatibility</h3>
+      <h3 className="mb-4 text-sm font-semibold text-[#0F172A]">REAP Compatibility <InfoTip text="REAP (Router-weighted Expert Activation Pruning) removes underutilized experts from MoE models to reduce memory and wafer count while preserving quality. Higher prunable % = more optimization headroom." /></h3>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
