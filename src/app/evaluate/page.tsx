@@ -235,15 +235,6 @@ function EvaluatePageInner() {
     async (modelId: string) => {
       dispatch({ type: 'START_ANALYSIS', modelId });
 
-      const hfToken = localStorage.getItem('modelscope_hf_token');
-      if (!hfToken) {
-        dispatch({
-          type: 'SET_ERROR',
-          error: 'HuggingFace API token not found. Please configure it in Settings.',
-        });
-        return;
-      }
-
       // ---- Phase 1: Fetch all HF data in parallel ----
       let config: ModelConfig | null = null;
       let modelInfo: ModelInfo | null = null;
@@ -252,10 +243,10 @@ function EvaluatePageInner() {
 
       try {
         const [configRes, infoRes, tokRes, cardRes] = await Promise.allSettled([
-          fetchModelConfig(modelId, hfToken),
-          fetchModelInfo(modelId, hfToken),
-          fetchTokenizerConfig(modelId, hfToken),
-          fetchModelCard(modelId, hfToken),
+          fetchModelConfig(modelId),
+          fetchModelInfo(modelId),
+          fetchTokenizerConfig(modelId),
+          fetchModelCard(modelId),
         ]);
 
         if (configRes.status === 'fulfilled') {

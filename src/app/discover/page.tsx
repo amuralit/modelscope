@@ -148,17 +148,8 @@ export default function DiscoverPage() {
       setLoading(true);
       setError(null);
 
-      const hfToken = localStorage.getItem('modelscope_hf_token');
-      if (!hfToken) {
-        setError(
-          'HuggingFace API token not found. Please configure it in Settings to discover trending models.',
-        );
-        setLoading(false);
-        return;
-      }
-
       try {
-        const trending = await fetchTrendingModels(hfToken);
+        const trending = await fetchTrendingModels();
         const gapModels: GapModel[] = trending.map((info) => {
           const lab = info.author ?? info.id.split('/')[0] ?? 'Unknown';
           const estimatedParams = estimateParamsFromInfo(info);

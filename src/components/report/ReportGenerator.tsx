@@ -170,22 +170,9 @@ export default function ReportGenerator({
     setError(null);
     setReport(null);
 
-    const apiKey =
-      typeof window !== 'undefined'
-        ? localStorage.getItem('modelscope_cerebras_key')
-        : null;
-
-    if (!apiKey) {
-      setError(
-        'Cerebras API key not found. Please set your API key in Settings.',
-      );
-      setLoading(false);
-      return;
-    }
-
     try {
       const prompt = buildPrompt(analysisData, modelName);
-      const result = await generateReport(apiKey, prompt);
+      const result = await generateReport(prompt);
       setReport(result);
     } catch (err) {
       setError(
