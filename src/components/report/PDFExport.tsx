@@ -115,38 +115,37 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
       pdf.setTextColor(...mid);
       pdf.text('COMPOSITE SCORE', m, y - 3);
 
-      // Breakdown table
-      const bx = m + 130;
+      // Module scores — 4 columns per row
       const entries = Object.entries(compositeScore.breakdown);
-      const colW = (cw - 130) / Math.min(entries.length, 7);
+      const scoreColW = cw / 4;
 
       pdf.setFontSize(8);
       pdf.setTextColor(...mid);
-      pdf.text('MODULE SCORES', bx, y - 3);
+      pdf.text('MODULE BREAKDOWN', m + 130, y - 3);
 
       entries.forEach(([key, val], i) => {
-        const x = bx + i * colW;
+        const col = i % 4;
+        const row = Math.floor(i / 4);
+        const x = m + 130 + col * scoreColW * 0.85;
+        const sy = y + row * 28;
         const sc = scoreColor(val.score);
 
-        // Score
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(14);
+        pdf.setFontSize(13);
         pdf.setTextColor(...sc);
-        pdf.text(`${val.score}`, x + 2, y + 15);
+        pdf.text(`${val.score}`, x, sy + 14);
 
-        // Label
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(6);
         pdf.setTextColor(...light);
-        const label = key.replace(/([A-Z])/g, ' $1').trim().toUpperCase();
-        pdf.text(label, x + 2, y + 25);
-
-        // Weight
+        const words = key.replace(/([A-Z])/g, ' $1').trim().split(' ');
+        const label = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        pdf.text(label, x, sy + 22);
         pdf.setFontSize(5);
-        pdf.text(`${Math.round(val.weight * 100)}%`, x + 2, y + 32);
+        pdf.text(`Weight: ${Math.round(val.weight * 100)}%`, x, sy + 28);
       });
 
-      y += 50;
+      y += Math.ceil(entries.length / 4) * 28 + 20;
 
       // ================================================================
       // SECTION HELPER
@@ -263,10 +262,68 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
             sectionTitle('Competitive Landscape', amber);
             const competitors = gap.competitorsOffering as string[] | undefined;
             if (competitors && competitors.length > 0) {
-              addParagraph(`Served by ${competitors.length} provider(s): ${competitors.join(', ')}. Market gap: ${gap.marketGapSize ?? 'unknown'}. Risk of not offering: ${gap.riskOfNotOffering ?? 'unknown'}.`);
+              addParagraph(`Served by ${competitors.length} provider(s): ${competitors.join(', ')}. Market gap: ${gap.marketGapSize ?? 'unknown'}. Risk of not offering: ${gap.riskOfNotOffering ?? 'unknown'}. Timeline pressure: ${gap.timelinePressure ?? 'unknown'}.`);
             } else {
               addParagraph('No competitors currently serve this model — first-mover opportunity for Cerebras.');
             }
+
+            // Provider pricing table
+            const providers = gap.providers as Array<{ name: string; serves_model: boolean; estimated_speed: number; input_price: number; output_price: number }> | undefined;
+            if (providers && providers.length > 0) {
+              checkPage(100);
+              const serving = providers.filter(p => p.serves_model);
+              if (serving.length > 0) {
+                y += 5;
+                // Table header
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(7);
+                pdf.setTextColor(...mid);
+                const cols = [m + 10, m + 100, m + 170, m + 240, m + 320];
+                pdf.text('PROVIDER', cols[0], y);
+                pdf.text('SPEED', cols[1], y);
+                pdf.text('INPUT $/M', cols[2], y);
+                pdf.text('OUTPUT $/M', cols[3], y);
+                pdf.text('CEREBRAS ADV.', cols[4], y);
+                y += 3;
+                pdf.setDrawColor(226, 232, 240);
+                pdf.line(m + 10, y, pw - m, y);
+                y += 10;
+
+                // Cerebras row
+                const cSpeed = gap.estimatedCerebrasSpeed as number ?? 2000;
+                const cInput = cSpeed > 1500 ? 0.10 : cSpeed > 800 ? 0.25 : 0.60;
+                const cOutput = cSpeed > 1500 ? 0.10 : cSpeed > 800 ? 0.25 : 1.00;
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(8);
+                pdf.setTextColor(...indigo);
+                pdf.text('Cerebras (WSE-3)', cols[0], y);
+                pdf.text(`${cSpeed} tok/s`, cols[1], y);
+                pdf.text(`$${cInput.toFixed(2)}`, cols[2], y);
+                pdf.text(`$${cOutput.toFixed(2)}`, cols[3], y);
+                pdf.setTextColor(...green);
+                pdf.text('—', cols[4], y);
+                y += 12;
+
+                // Other providers
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(7);
+                for (const p of serving) {
+                  checkPage(15);
+                  pdf.setTextColor(...dark);
+                  pdf.text(p.name.charAt(0).toUpperCase() + p.name.slice(1), cols[0], y);
+                  pdf.setTextColor(...mid);
+                  pdf.text(`${p.estimated_speed} tok/s`, cols[1], y);
+                  pdf.text(`$${p.input_price.toFixed(2)}`, cols[2], y);
+                  pdf.text(`$${p.output_price.toFixed(2)}`, cols[3], y);
+                  const speedAdv = cSpeed / Math.max(p.estimated_speed, 1);
+                  pdf.setTextColor(...green);
+                  pdf.text(`${speedAdv.toFixed(1)}x faster`, cols[4], y);
+                  y += 10;
+                }
+                y += 5;
+              }
+            }
+
             if (gap.differentiators) {
               for (const d of gap.differentiators as string[]) {
                 addBullet(d);
