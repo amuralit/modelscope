@@ -678,7 +678,9 @@ function EvaluatePageInner() {
                     radar_values: {
                       tool_calling: results.agenticFit.toolUseCapability,
                       structured_output: results.agenticFit.instructionFollowing,
-                      context_length: results.agenticFit.reasoningDepth > 50 ? 80 : 40,
+                      context_length: (results.architecture?.contextWindow ?? 0) >= 128000 ? 100
+                        : (results.architecture?.contextWindow ?? 0) >= 32000 ? 80
+                        : (results.architecture?.contextWindow ?? 0) >= 8000 ? 50 : 20,
                       reasoning: results.agenticFit.reasoningDepth,
                       code_quality: results.agenticFit.codeGeneration,
                       multi_turn: results.agenticFit.multiTurnCoherence,
