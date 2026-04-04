@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const CEREBRAS_API = "https://api.cerebras.ai/v1";
-const MODEL = "qwen-3-32b";
+const MODEL = "llama3.1-8b";
 
 function getKey(): string {
   const key = process.env.CEREBRAS_API_KEY;

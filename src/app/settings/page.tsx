@@ -273,7 +273,7 @@ export default function SettingsPage() {
           />
           <ConnectionTestRow
             label="Cerebras Inference"
-            description="Powers AI summary report generation (Qwen3-32B)"
+            description="Powers AI summary report generation (Llama 3.1-8B)"
             status={cerebrasStatus}
             onTest={handleTestCerebras}
           />

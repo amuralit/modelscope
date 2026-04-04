@@ -15,28 +15,28 @@ export interface CerebrasModel {
 
 export const CEREBRAS_MODELS: readonly CerebrasModel[] = [
   {
-    id: "llama-3.3-70b",
-    name: "Llama 3.3 70B",
-    params: 70,
-    type: "llama",
-  },
-  {
-    id: "llama-3.1-8b",
+    id: "llama3.1-8b",
     name: "Llama 3.1 8B",
     params: 8,
     type: "llama",
   },
   {
-    id: "llama-4-scout-17b-16e-instruct",
-    name: "Llama 4 Scout 17B 16E Instruct",
-    params: 17,
-    type: "llama-moe",
+    id: "gpt-oss-120b",
+    name: "GPT OSS 120B",
+    params: 120,
+    type: "gpt",
   },
   {
-    id: "qwen-3-32b",
-    name: "Qwen 3 32B",
-    params: 32,
-    type: "qwen",
+    id: "qwen-3-235b-a22b-instruct-2507",
+    name: "Qwen 3 235B A22B Instruct",
+    params: 235,
+    type: "qwen-moe",
+  },
+  {
+    id: "zai-glm-4.7",
+    name: "ZAI GLM 4.7",
+    params: 9,
+    type: "glm",
   },
 ] as const satisfies readonly CerebrasModel[];
 
