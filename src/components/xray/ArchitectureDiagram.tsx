@@ -138,11 +138,11 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
 
       {/* Architecture details grid */}
       <div className="mb-3 grid grid-cols-5 gap-2">
-        <Stat label="Layers" value={String(arch.numLayers)} />
-        <Stat label="Heads" value={`${arch.numAttentionHeads}`} sub={`${arch.numKVHeads} KV`} />
-        <Stat label="Head Dim" value={String(arch.headDim)} />
-        <Stat label="Hidden" value={arch.hiddenSize.toLocaleString()} />
-        <Stat label="FFN" value={arch.intermediateSize.toLocaleString()} />
+        <Stat label="Layers" value={String(arch.numLayers)} tip="Number of transformer blocks stacked sequentially. More layers = deeper reasoning but more memory and compute." />
+        <Stat label="Heads" value={`${arch.numAttentionHeads}`} sub={`${arch.numKVHeads} KV`} tip="Query attention heads and key-value heads. GQA shares KV heads across multiple query heads to save memory." />
+        <Stat label="Head Dim" value={String(arch.headDim)} tip="Dimensionality of each attention head. Typically 64 or 128. Hidden size = heads x head dim." />
+        <Stat label="Hidden" value={arch.hiddenSize.toLocaleString()} tip="Width of the model's internal representation. Larger = more capacity but more memory per layer." />
+        <Stat label="FFN" value={arch.intermediateSize.toLocaleString()} tip="Feed-forward network intermediate size. Typically 2.5-4x the hidden size. Where most parameters live." />
       </div>
 
       {/* Performance estimates */}
@@ -151,11 +151,13 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
           label="FP16 Memory"
           value={formatBytes(fp16Bytes)}
           sub={`${Math.ceil(fp16Bytes / (44 * 1024 ** 3))} wafer(s)`}
+          tip="Total weight memory at half precision (2 bytes per parameter). Most common inference precision."
         />
         <Stat
           label="FP8 Memory"
           value={formatBytes(fp8Bytes)}
           sub={`${Math.ceil(fp8Bytes / (44 * 1024 ** 3))} wafer(s)`}
+          tip="Weight memory at 8-bit precision (1 byte per parameter). Best balance of quality and memory for WSE-3."
         />
         <Stat
           label="Decode (est.)"
@@ -191,6 +193,7 @@ export default function ArchitectureDiagram({ arch, wseFit, estimatedTps }: Arch
             label="Total SRAM Usage"
             value={`${(wseFit.sramUtilization * 100).toFixed(0)}%`}
             sub={wseFit.fitsInSRAM ? 'Fits in single WSE-3' : 'Multi-wafer required'}
+            tip="Percentage of WSE-3's 44GB on-chip SRAM used by model weights + KV cache. Over 100% requires multi-wafer pipeline parallelism."
           />
         )}
       </div>
