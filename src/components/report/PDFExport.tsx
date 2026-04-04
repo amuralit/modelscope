@@ -229,7 +229,17 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
       // AI SUMMARY SECTIONS
       // ================================================================
       if (aiSummary) {
-        const lines = aiSummary.split('\n');
+        // First split inline bullets
+        const rawLines = aiSummary.split('\n');
+        const lines: string[] = [];
+        for (const line of rawLines) {
+          if (line.includes('• ')) {
+            line.split('• ').map(s => s.trim()).filter(Boolean).forEach(p => lines.push('- ' + p.replace(/^[-*]\s*/, '')));
+          } else {
+            lines.push(line);
+          }
+        }
+
         let section = '';
 
         pdf.setDrawColor(226, 232, 240);
@@ -237,22 +247,31 @@ export default function PDFExport({ modelName, compositeScore, verdictInfo, anal
         y += 15;
 
         for (const line of lines) {
-          const lower = line.toLowerCase().replace(/[#*]/g, '').trim();
-          if (!lower) continue;
-
-          if (lower.includes('executive summary')) { sectionTitle('Executive Summary', indigo); section = 'para'; continue; }
-          if (lower.includes('key strength') || lower.includes('strengths')) { sectionTitle('Key Strengths', green); section = 'bullet'; continue; }
-          if (lower.includes('key risk') || lower.includes('concerns') || lower.includes('risks')) { sectionTitle('Key Risks & Concerns', amber); section = 'bullet'; continue; }
-          if (lower.includes('deployment readiness') || lower.includes('wse')) { sectionTitle('WSE Deployment Readiness', indigo); section = 'para'; continue; }
-          if (lower.includes('recommendation')) { sectionTitle('Recommendation', green); section = 'para'; continue; }
-
           const trimmed = line.trim();
           if (!trimmed || trimmed === '---') continue;
 
-          if (section === 'bullet' && (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('•'))) {
-            addBullet(trimmed.replace(/^[-*•]\s*/, ''));
+          // Only detect headings that start with # or **
+          const isHeading = trimmed.startsWith('#') || (trimmed.startsWith('**') && trimmed.endsWith('**'));
+          if (isHeading) {
+            const headingText = trimmed.replace(/^#+\s*/, '').replace(/\*\*/g, '').trim().toLowerCase();
+            if (headingText.includes('executive summary')) { sectionTitle('Executive Summary', indigo); section = 'para'; continue; }
+            if (headingText.includes('strength')) { sectionTitle('Key Strengths', green); section = 'bullet'; continue; }
+            if (headingText.includes('risk') || headingText.includes('concern')) { sectionTitle('Key Risks & Concerns', amber); section = 'bullet'; continue; }
+            if (headingText.includes('deployment') || headingText.includes('readiness')) { sectionTitle('WSE Deployment Readiness', indigo); section = 'para'; continue; }
+            if (headingText.includes('recommendation')) { sectionTitle('Recommendation', green); section = 'para'; continue; }
+            // Unknown heading
+            sectionTitle(headingText, mid); section = 'para'; continue;
+          }
+
+          const isBullet = trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('•');
+          const content = trimmed.replace(/^[-*•]\s*/, '').replace(/\*\*/g, '');
+
+          if (!content) continue;
+
+          if (isBullet) {
+            addBullet(content);
           } else {
-            addParagraph(trimmed.replace(/^[-*•]\s*/, ''));
+            addParagraph(content);
           }
         }
       }
