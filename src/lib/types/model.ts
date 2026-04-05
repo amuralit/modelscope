@@ -20,6 +20,7 @@ export interface ModelConfig {
   first_k_dense_replace?: number;
   n_shared_experts?: number;
   tie_word_embeddings?: boolean;
+  hybrid_override_pattern?: string;
   rope_theta?: number;
   torch_dtype?: string;
   architectures?: string[];

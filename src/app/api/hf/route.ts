@@ -55,7 +55,7 @@ function normalizeConfig(raw: Record<string, any>): Record<string, any> {
       "hidden_size", "intermediate_size", "moe_intermediate_size", "vocab_size", "max_position_embeddings",
       "num_local_experts", "num_experts_per_tok", "num_experts", "n_routed_experts",
       "head_dim", "rope_theta", "sliding_window", "tie_word_embeddings",
-      "first_k_dense_replace", "n_shared_experts",
+      "first_k_dense_replace", "n_shared_experts", "hybrid_override_pattern",
     ];
     for (const f of fields) {
       if (config[f] === undefined && nested[f] !== undefined) {
