@@ -248,6 +248,16 @@ function EvaluatePageInner() {
   // ----- Core analysis pipeline -----
   const runAnalysis = useCallback(
     async (modelId: string) => {
+      // Pre-check: is this a gated model we don't have access to?
+      try {
+        const access = await checkModelAccess(modelId);
+        if (access.gated && !access.accessible) {
+          setGatedInfo({ modelId, modelUrl: access.modelUrl ?? `https://huggingface.co/${modelId}` });
+          return;
+        }
+      } catch { /* proceed anyway */ }
+      setGatedInfo(null);
+
       dispatch({ type: 'START_ANALYSIS', modelId });
 
       // ---- Phase 1: Fetch all HF data in parallel ----
@@ -555,6 +565,19 @@ function EvaluatePageInner() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8">
+      {/* Gated model wizard */}
+      {gatedInfo && (
+        <GatedModelWizard
+          modelId={gatedInfo.modelId}
+          modelUrl={gatedInfo.modelUrl}
+          onRetry={() => {
+            setGatedInfo(null);
+            runAnalysis(gatedInfo.modelId);
+          }}
+          onCancel={() => setGatedInfo(null)}
+        />
+      )}
+
       <div className="mx-auto max-w-7xl">
         {/* Page title */}
         <div className="mb-8">
