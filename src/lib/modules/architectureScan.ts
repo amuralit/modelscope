@@ -40,23 +40,28 @@ export async function runArchitectureScan(
   const nSharedExperts = config.n_shared_experts ?? 0;
 
   // Hybrid models (Mamba+Transformer like Nemotron-H, Jamba)
-  // hybrid_override_pattern tells which layers are attention vs Mamba/SSM
-  // e.g., "MMMAMMMA..." where M=Mamba, A=Attention
+  // hybrid_override_pattern: M=Mamba/SSM, E=attention-only (dense), *=attention+MoE
   const hybridPattern = config.hybrid_override_pattern ?? "";
   const isHybrid = hybridPattern.length > 0;
-  let numAttnLayers = numLayers;
+  let numAttnLayers = numLayers; // attention-only layers (no MoE)
   let numMambaLayers = 0;
+  let numHybridMoELayers = 0; // attention+MoE layers (only * chars)
   if (isHybrid) {
-    // Pattern chars: M=Mamba/SSM, E=attention(no MoE), *=attention+MoE, A=attention
     const patternLen = hybridPattern.length;
-    if (patternLen === numLayers) {
+    if (patternLen === numLayers || patternLen > 0) {
       numMambaLayers = (hybridPattern.match(/M/g) || []).length;
-      numAttnLayers = patternLen - numMambaLayers;
-    } else if (patternLen > 0) {
-      // Pattern doesn't match layer count — estimate
-      const mRatio = (hybridPattern.match(/M/g) || []).length / Math.max(patternLen, 1);
-      numMambaLayers = Math.round(numLayers * mRatio);
-      numAttnLayers = numLayers - numMambaLayers;
+      numHybridMoELayers = (hybridPattern.match(/\*/g) || []).length;
+      const numELayers = (hybridPattern.match(/E/g) || []).length;
+      // If pattern matches layer count, use exact counts
+      if (patternLen === numLayers) {
+        numAttnLayers = numELayers + (patternLen - numMambaLayers - numHybridMoELayers - numELayers);
+      } else {
+        // Scale to actual layer count
+        const scale = numLayers / Math.max(patternLen, 1);
+        numMambaLayers = Math.round(numMambaLayers * scale);
+        numHybridMoELayers = Math.round(numHybridMoELayers * scale);
+        numAttnLayers = numLayers - numMambaLayers - numHybridMoELayers;
+      }
     }
   }
 
@@ -96,10 +101,10 @@ export async function runArchitectureScan(
   if (isMoE && moeIntermediateSize && moeIntermediateSize > 0) {
     const expertMlpParams = hiddenSize * moeIntermediateSize * 3;
     const routerParams = hiddenSize * numExperts;
-    // Shared experts (DeepSeek-style n_shared_experts, or intermediate != moe_intermediate)
+    // Shared experts: only add when explicitly configured
     const sharedMlpParams = nSharedExperts > 0
       ? hiddenSize * moeIntermediateSize * 3 * nSharedExperts
-      : (intermediateSize !== moeIntermediateSize ? denseMlpParams : 0);
+      : 0;
     moeMlpParamsPerLayer = expertMlpParams * numExperts + routerParams + sharedMlpParams;
   } else if (isMoE) {
     const routerParams = hiddenSize * numExperts;
@@ -108,21 +113,36 @@ export async function runArchitectureScan(
     moeMlpParamsPerLayer = denseMlpParams;
   }
 
-  // Handle layer types:
-  // - first_k_dense_replace: first N layers are dense (no experts)
-  // - hybrid: some layers are Mamba (lightweight, no attention or MoE)
-  // - remaining: full attention + MoE
-  const effectiveAttnLayers = isHybrid ? numAttnLayers : numLayers;
-  const numDenseLayers = isMoE ? Math.min(firstKDenseReplace, effectiveAttnLayers) : effectiveAttnLayers;
-  const numMoELayers = isMoE ? effectiveAttnLayers - numDenseLayers : 0;
-  // Mamba layers are lightweight (~2 × hidden_size × expand × d_state per layer, ~small)
-  const mambaParamsPerLayer = hiddenSize * 16 * 2; // rough estimate for Mamba block
+  // Layer type counts:
+  // - Mamba: lightweight SSM layers
+  // - Dense attn: attention + dense MLP (no experts)
+  // - MoE attn: attention + MoE expert MLP
+  let finalMambaLayers = numMambaLayers;
+  let finalDenseLayers: number;
+  let finalMoELayers: number;
+
+  if (isHybrid) {
+    // Hybrid: use pattern-derived counts
+    finalDenseLayers = numAttnLayers; // E layers (attention-only)
+    finalMoELayers = numHybridMoELayers; // * layers (attention+MoE)
+  } else if (isMoE) {
+    // Standard MoE: first_k_dense_replace dense, rest MoE
+    finalDenseLayers = firstKDenseReplace;
+    finalMoELayers = numLayers - firstKDenseReplace;
+  } else {
+    // Dense model: all layers are dense attention
+    finalDenseLayers = numLayers;
+    finalMoELayers = 0;
+  }
+
+  // Mamba layers: ~6 × hidden² params per layer (in_proj + conv + x_proj + dt + out_proj)
+  const mambaParamsPerLayer = hiddenSize * hiddenSize * 6;
 
   const totalParams =
     embeddingParams +
-    numMambaLayers * mambaParamsPerLayer +
-    numDenseLayers * (attnParamsPerLayer + denseMlpParams) +
-    numMoELayers * (attnParamsPerLayer + moeMlpParamsPerLayer);
+    finalMambaLayers * mambaParamsPerLayer +
+    finalDenseLayers * (attnParamsPerLayer + denseMlpParams) +
+    finalMoELayers * (attnParamsPerLayer + moeMlpParamsPerLayer);
 
   // Active parameters (for MoE, only active experts fire per token)
   let activeParams = totalParams;
@@ -133,12 +153,12 @@ export async function runArchitectureScan(
       hiddenSize * numExperts + // router always active
       (nSharedExperts > 0
         ? hiddenSize * activeExpertSize * 3 * nSharedExperts
-        : (moeIntermediateSize && intermediateSize !== moeIntermediateSize ? denseMlpParams : 0));
+        : 0);
     activeParams =
       embeddingParams +
-      numMambaLayers * mambaParamsPerLayer +
-      numDenseLayers * (attnParamsPerLayer + denseMlpParams) +
-      numMoELayers * (attnParamsPerLayer + activeMlpPerLayer);
+      finalMambaLayers * mambaParamsPerLayer +
+      finalDenseLayers * (attnParamsPerLayer + denseMlpParams) +
+      finalMoELayers * (attnParamsPerLayer + activeMlpPerLayer);
   }
 
   // ---- Supported features --------------------------------------------------
