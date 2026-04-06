@@ -21,6 +21,12 @@ export interface ModelConfig {
   n_shared_experts?: number;
   tie_word_embeddings?: boolean;
   hybrid_override_pattern?: string;
+  expand?: number;
+  ssm_state_size?: number;
+  mamba_num_heads?: number;
+  mamba_head_dim?: number;
+  conv_kernel?: number;
+  n_groups?: number;
   rope_theta?: number;
   torch_dtype?: string;
   architectures?: string[];

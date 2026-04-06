@@ -56,6 +56,7 @@ function normalizeConfig(raw: Record<string, any>): Record<string, any> {
       "num_local_experts", "num_experts_per_tok", "num_experts", "n_routed_experts",
       "head_dim", "rope_theta", "sliding_window", "tie_word_embeddings",
       "first_k_dense_replace", "n_shared_experts", "hybrid_override_pattern",
+      "expand", "ssm_state_size", "mamba_num_heads", "mamba_head_dim", "conv_kernel", "n_groups",
     ];
     for (const f of fields) {
       if (config[f] === undefined && nested[f] !== undefined) {

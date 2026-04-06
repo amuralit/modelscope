@@ -135,8 +135,18 @@ export async function runArchitectureScan(
     finalMoELayers = 0;
   }
 
-  // Mamba layers: ~6 × hidden² params per layer (in_proj + conv + x_proj + dt + out_proj)
-  const mambaParamsPerLayer = hiddenSize * hiddenSize * 6;
+  // Mamba layer params: in_proj + conv1d + x_proj + out_proj + A + D
+  const mambaExpand = config.expand ?? 2;
+  const dInner = hiddenSize * mambaExpand;
+  const mambaHeads = config.mamba_num_heads ?? 1;
+  const mambaStateSize = config.ssm_state_size ?? 128;
+  const mambaConvKernel = config.conv_kernel ?? 4;
+  const mambaGroups = config.n_groups ?? 1;
+  const mambaInProj = hiddenSize * dInner * 2; // gate + input
+  const mambaConv = dInner * mambaConvKernel;
+  const mambaXProj = dInner * (mambaHeads + 2 * mambaGroups * mambaStateSize);
+  const mambaOutProj = dInner * hiddenSize;
+  const mambaParamsPerLayer = mambaInProj + mambaConv + mambaXProj + mambaOutProj + mambaHeads * 2;
 
   const totalParams =
     embeddingParams +
